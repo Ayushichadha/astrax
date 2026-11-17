@@ -70,3 +70,23 @@ def test_complete_auto_training_model_and_policy_audit():
     bad["windows"][1]["branches"][0]["x"][2] += 1
     with pytest.raises(ValueError):
         s.validate_training(task, bad, 881)
+
+
+def test_archived_reference_constructions_with_exact_checks():
+    import json
+    from pathlib import Path
+
+    reference = json.loads(
+        (
+            Path(__file__).parents[1]
+            / "papers/metacontrol/artifacts/benchmark-reference-audit.json"
+        ).read_text()
+    )
+    a = reference["autocorrelation_problems.ipynb"]["construction"]["best_sequence"]
+    assert s.autocheck(a, exact=True) == pytest.approx(1.5052939684401607, abs=1e-14)
+    p = reference["packing_circles_max_sum_of_radii.ipynb"]["construction"]
+    z = np.column_stack([p["centers_32"], p["radii_32"]])
+    with pytest.raises(ValueError):
+        s.packing_exact(z.ravel())
+    z[:, 2] *= 1 - 1e-9
+    assert s.packing_exact(z.ravel()) == pytest.approx(2.9395727682667503, abs=1e-14)

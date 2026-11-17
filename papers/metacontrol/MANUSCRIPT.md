@@ -650,11 +650,16 @@ A success requires mean >=0.0002 and lower endpoint >0. Taskwise 95% intervals
 are descriptive. The aggregate weights packing twice because it contains two
 tasks; it does not estimate performance over all mathematical problems.
 
-The dispatch ledger permits at most 490 calls, each 1 CPU/2GiB/600 seconds,
+The job list contains 487 planned unique calls. The dispatch ledger permits at
+most 490 calls, each 1 CPU/2GiB/600 seconds,
 zero retries, four concurrent containers. At the checked Modal rate this caps
 function execution at $5.15676; $2 prior-usage allowance and $1 overhead reserve
 keep the planned total below $10. Startup/build/idle charges are separate from
 measured function time. No automatic retry or unbounded autoresearch is allowed.
+An offline-auditor bookkeeping correction was identified during first-task
+training, before fitting or confirmation: its completeness assertion must expect
+487 calls, not the 490-call ceiling. Frozen sources are preserved in the evidence;
+this changes no treatment, seed, model, result or spending cap.
 
 The conditional autoresearch pilot is development-only: consider it only if all
 three primary gates fail and at least one task has mean immediate oracle-minus-
