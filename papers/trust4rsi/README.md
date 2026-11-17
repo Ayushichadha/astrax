@@ -1,0 +1,399 @@
+# Astrax: current evidence and next decision
+
+Updated November 17, 2026. This is the single active research brief. Completed
+protocols remain evidence records, not competing experiment plans.
+
+## Sequential controller: completed study
+
+The completed experiment tests repeated search-option decisions, rather
+than the previous exactly-one-replacement stopping policy. Its frozen protocol is
+in `scripts/sequential_controller.py::specification`; the CPU dispatcher is
+`scripts/modal_sequential_controller.py`. All 96 training, 16 validation and 48 confirmation seeds are complete.
+
+- **H1 (capacity):** tree sequential minus ridge sequential.
+- **H2 (credit):** tree sequential minus tree myopic.
+- Both require mean gain >=0.0005 and a positive lower endpoint of a paired
+  97.5% bootstrap interval (20,000 seed resamples; two primary comparisons).
+- Four learned arms form a capacity × credit comparison: ridge/tree, each with
+  immediate-only or finite-horizon reward targets. Ridge-myopic is a diagnostic
+  control; only H1/H2 are primary. The selected fixed comparator gap is descriptive.
+- Eight windows ×80 objective calls, three available options (local, moderate,
+  restart), independent geometry verification, immutable incumbent on failure.
+  Switching is allowed repeatedly, has no artificial reward penalty, and is
+  counted. Wall time and controller/observation overhead are measured separately.
+- 96 fresh training seeds, 16 validation seeds selecting among always-local,
+  always-moderate and local-to-moderate/window-4, then 48 fresh paired confirmation
+  seeds. Training branches all three options at each visited state; a seeded
+  uniform behavior policy chooses the continuing branch. This produces 2,304
+  transitions; they are not 2,304 independent trajectories.
+- Fixed ridge alpha=10; ExtraTrees uses 64 trees, depth<=5, leaf>=8, seed731.
+  There is no hyperparameter search. Separate window/action regressors implement
+  backward fitted Q iteration with gamma=1; myopic heads use gamma=0. Model choice
+  and comparison rules freeze before confirmation. Ties favor local, then moderate.
+- Each evaluation executes a fresh full rollout. Model artifacts are JSON arrays;
+  source hashes, branch constructions, causal observations, action values and
+  objective counts are retained. No learned controller is promoted automatically.
+- Up to four CPU tasks, each capped at one core, 2GiB and 600 seconds, no retries.
+  164-call conservative allowance: <=$1.725936 function execution plus $0.50 reserve,
+  alongside the last observed $0.18 prior workspace usage, within $10. Actual
+  invoice/credit accounting may lag and is separate from this rate-based bound.
+
+ExtraTrees is the fixed nonlinear option for this controlled study, following
+classical tree-based batch RL; it is not a boosted-tree or uncertainty-gated
+implementation. Finite-horizon value targets test the value of future decisions,
+not merely larger prediction models. Compressed observations may be non-Markov;
+branch coverage at training states does not ensure coverage of learned rollouts.
+
+The broader agent-runtime direction remains future work: versioned proposals,
+capability admission, policy promotion/regression gates, and eventual LLM proposal
+adapters. Geometry validation in this experiment is not a policy-improvement
+certificate. No Tao/Einstein transfer, autonomous code invention, uncertainty
+fallback or safe-improvement theorem is claimed. The work is metareasoning /
+dynamic algorithm configuration grounded in a verified mathematical worker.
+
+### Sequential results and what they mean
+
+| Contrast | Mean difference | Paired 97.5% interval | Status |
+|---|---:|---|---|
+| Sequential H1: tree minus ridge | +0.000075914 | [-0.001680902, +0.001831500] | Improvement not established |
+| Sequential H2: sequential minus myopic, tree | -0.000629639 | [-0.002553465, +0.001322107] | Improvement not established |
+| Tree-sequential minus selected fixed | -0.000146703 | [-0.002958453, +0.002902246] | Descriptive |
+
+Both primary tests fail to establish improvement. The intervals also include
+useful positive effects, so this is not an equivalence result. Always-moderate was
+selected using validation only. Ridge-myopic has the highest observed mean,
+but that descriptive ranking is not a predeclared superiority finding.
+Tree-sequential made 31 distinct action sequences across 48 seeds, averaging
+3.79 switches, yet did not demonstrate better terminal outcomes. This is no
+longer just clock collapse: adaptive behavior is present, useful policy value
+remains unestablished. The best construction approaches but does not exceed the
+archived reference; no record improvement is claimed.
+
+| Policy | Mean terminal score | Mean switches | Mean episode seconds |
+|---|---:|---:|---:|
+| Always moderate (selected fixed) | 2.624710591 | 0.00 | 4.223 |
+| Reactive | 2.621470007 | 1.94 | 4.981 |
+| Ridge, myopic | 2.625304450 | 4.17 | 4.349 |
+| ExtraTrees, myopic | 2.625193527 | 3.35 | 4.513 |
+| Ridge, sequential | 2.624487974 | 5.21 | 4.138 |
+| ExtraTrees, sequential | 2.624563888 | 3.79 | 4.442 |
+
+![Sequential controller confirmation contrasts](sequential-controller-results.svg)
+
+The original combined repository passed 134 tests; Astrax passes the 41-test numerical subset. The offline audit verifies 2,304 training transitions and
+336 evaluation rollouts, including model predictions and the complete result
+summary. Recorded execution is 2,640.21 function-seconds, approximately **$0.0463**
+for CPU/memory, excluding build/startup/idle/egress. This is not a refreshed
+invoice. No paid collection was repeated after the audit-only amendment.
+
+The [single evidence archive](artifacts/sequential-controller-evidence.tar.gz)
+contains original and amended records, models and receipts. From a fresh checkout:
+
+```bash
+tar -xzf papers/trust4rsi/artifacts/sequential-controller-evidence.tar.gz
+python -m scripts.audit_sequential_controller --output outputs/sequential-controller-v2
+python -m scripts.plot_sequential_controller
+```
+
+The audit uses saved data and does not call Modal. For a separately authorized
+reproduction, prepare a new directory with
+`python -m scripts.sequential_controller --prepare outputs/sequential-reproduction`
+and run `modal run -m scripts.modal_sequential_controller --output outputs/sequential-reproduction`.
+Do not rerun confirmation to select another model. This study is complete.
+
+### Literature informing this study
+
+- [Automated Dynamic Algorithm Configuration](https://arxiv.org/abs/2205.13881)
+  and [DACBench](https://arxiv.org/abs/2105.08541): state-conditioned algorithm
+  configuration across execution; relevant formulations and baselines.
+- [Selecting Computations](https://proceedings.mlr.press/r10/hay12a.html): utility
+  of computation and selection; ordinary cumulative-reward bandits are not an
+  automatic match for terminal discovery objectives.
+- [AIOS](https://arxiv.org/abs/2403.16971): runtime services and resource mediation;
+  not evidence that our learned controller is novel or effective.
+- [AlphaEvolve](https://arxiv.org/abs/2506.13131) and
+  [ShinkaEvolve](https://arxiv.org/abs/2509.19349): program evolution and adaptive
+  selection already exist; they must inform novelty and matched baselines.
+- [SPIBB](https://proceedings.mlr.press/v97/laroche19a.html): baseline fallback
+  under limited support, with assumptions that do not automatically transfer.
+- [Conservative Q-Learning](https://arxiv.org/abs/2006.04779): offline value
+  overestimation/distribution shift; useful comparator, not a generic safety proof.
+
+The Exa discovery request is retained at `outputs/exa-audit/controller-dac.json`
+and cost $0.007. Official papers/docs were also checked via web retrieval. This
+is a targeted design audit, not an exhaustive literature review. Read and pin
+full implementations before reproducing a method. No past.dev records were uploaded.
+
+### Pre-fitting audit portability amendment
+
+Cross-platform recomputation of an initial score differed by approximately 7e-16
+between macOS and the pinned Linux worker. Bitwise trace equality was therefore
+replaced with absolute tolerance 1e-12 (zero relative tolerance) for recomputed
+observations/rewards/scores only. Feasibility stays strict; action and evaluation
+counts stay exact. Original training records retain their original manifest
+identity. There is no recollection or change to hypotheses, actions, training,
+models, splits or selection rules. This is recorded before any model fitting or
+validation/confirmation dispatch.
+
+## Reading guide: ridge and the sequential controller
+
+Ridge is linear regression with an L2 penalty. Given observed features x and a
+training target y, it fits an intercept b and coefficients w by minimizing
+`sum_i (y_i - b - x_i^T w)^2 + alpha * sum_j w_j^2`.
+The intercept is unpenalized. We standardize each feature using training data only,
+so units such as score, geometric clearance and contact count do not determine
+which coefficients receive the strongest effective penalty. Alpha=0 recovers
+ordinary least squares; a larger alpha shrinks slopes more strongly. Shrinkage
+can reduce sensitivity to correlated/noisy features, but cannot create
+information the observations do not contain. Alpha=10 here is a fixed study
+setting, not a claim that 10 is universally best.
+
+For this study, an observation summarizes the completed search: its score,
+recent progress, geometry, last option and remaining budget. Each action/window
+has its own model. A ridge head predicts a weighted sum of these features;
+ExtraTrees averages shallow randomized regression trees, allowing conditions
+and interactions such as "moderate perturbation is useful when progress has
+stalled AND the remaining clearance is large." That sentence is an illustrative
+possible rule, not a discovered result. Greater flexibility can also overfit.
+
+The distinction between myopic and sequential is the training target:
+
+- **Myopic:** how much verified score will this next window gain?
+- **Sequential:** how much score can this action plus later controller decisions
+  gain before the episode ends? We fit the last window first, then work backward,
+  adding the next window's largest predicted action value to the observed gain.
+
+At runtime the controller evaluates all three heads for the current window and
+executes the option with the highest predicted value. Ridge by itself is a
+regression method; embedded in this backward learning-and-choice procedure it
+is the function approximator for a finite-horizon control policy. Switching to
+neural networks is not required for the problem to be metacontrol. The scientific
+question is whether the learned choices improve outcomes at a fair resource cost.
+
+Read [the official ridge explanation](https://scikit-learn.org/1.8/modules/linear_model.html#ridge-regression-and-classification)
+first, then [ExtraTrees parameters](https://scikit-learn.org/1.8/modules/generated/sklearn.ensemble.ExtraTreesRegressor.html),
+and finally [Ernst, Geurts and Wehenkel on tree-based batch reinforcement learning](https://jmlr.org/papers/v6/ernst05a.html).
+The last paper explains why a sequence of regression fits can learn action values.
+Our small, compressed-state experiment does not inherit a general convergence or
+safe-policy-improvement guarantee from that literature.
+
+The implemented runtime loop is:
+
+```mermaid
+flowchart LR
+    S[Verified incumbent, history and remaining budget] --> C[Frozen ridge or tree critic]
+    C --> A[Choose local, moderate or restart]
+    A --> W[Worker: 80 objective calls]
+    W --> V[Independent geometry check]
+    V -->|Feasible| I[Retain best incumbent and append trace]
+    I -->|Budget remains| S
+    I -->|Budget exhausted| R[Terminal score and full audit log]
+    V -->|Infeasible| X[Abort; retain original state]
+```
+
+## Research objective
+
+Extend paper 2's adaptive-controller question: can observations identify when a
+persistent strategy should be revised to improve terminal verified outcomes under
+a controlled budget? [Paper 1](https://arxiv.org/abs/2606.03741) supplies the
+persistent-commitment mechanism; [paper 2](https://arxiv.org/abs/2609.00874)
+distinguishes scores, actions and useful policy value. Numerical search tests the
+question with an explicit worker. It is not an HRM/feudal architecture transfer.
+
+## What the completed work establishes
+
+| Study | Data | Main finding |
+|---|---|---|
+| Timing opportunity | 12 development seeds | Retrospective oracle exceeds best fixed timing by 0.002429; not a deployable result |
+| Progress-conditioned prediction | 24 train / 12 validation / 24 confirmation | State and time policies choose the same late clock on every confirmation seed; zero advantage |
+| Geometry/revision-quality follow-up | 24 train / 12 validation / 48 fresh confirmation | Moderate fixed configuration improves; richer geometry does not establish adaptive benefit |
+
+The follow-up had two predeclared primary contrasts with adjusted 97.5% paired
+intervals and a minimum useful mean gain of 0.0005:
+
+- **H1, geometry-broad minus progress-broad:** +0.000281255,
+  interval [-0.000208784, 0.001007672]. Failed the gate.
+- **H2, selected fixed-moderate minus selected fixed-broad:** +0.006011583,
+  interval [0.003712203, 0.008490446]. Passed; 36 wins, 7 losses and 5 ties.
+
+H2 compares two validation-selected fixed configurations (moderate at window 4,
+broad at window 5). It does not establish learned adaptive timing or isolate
+strength at an identical clock. The manuscript reports all seven same-clock
+means as a post-hoc descriptive check, not a new confirmation endpoint.
+Geometry-conditioned policies did not establish superiority over simpler controls.
+The strongest mean moderate policy is also a clock, not useful state adaptation.
+
+This is consequential but scoped progress: a controlled revision-configuration
+improvement and evidence against the tested observation upgrade. It is not yet
+a successful adaptive-controller system or a record-breaking autoresearch agent.
+The best follow-up confirmation construction scores 2.634292399, below the
+archived reference 2.6359830849176076. No world-record claim is verified.
+
+## Budget replication completed
+
+A single predeclared robustness test doubled the budget to 1,280 objective calls,
+retaining moderate/window-4 and broad/window-5 without reselection. On 48 fresh
+paired seeds, moderate gained 0.007796153 with 97.5% interval
+[0.005102243, 0.010784626]: 38 wins, 2 losses, 8 ties. The success gate passed.
+All 96 constructions were independently checked; 124 tests passed. This extends
+the fixed-configuration result to a second budget, not to learned adaptive timing
+or another problem. Different seed cohorts do not establish a budget interaction.
+
+Artifacts: `outputs/budget-replication-v1/`. Runner:
+`scripts/modal_budget_replication.py` (refuses overwrite; no automatic resume).
+[Modal run](https://modal.com/apps/ayushichadha/main/ap-it57xwYJQ7gSiRDKGI5c8H).
+Last observed workspace total before the sequential study: $0.18, credit-covered, $0 billed. The prior
+observed total was $0.17; rounded billing can lag. No payment method was added. Billing was not refreshed for the sequential study;
+its measured execution estimate is given above.
+
+## Sequential project history
+
+1. Paper 1 introduced persistent feudal commitments in HRM.
+2. Paper 2 asked when to revise; adaptive scores/actions did not establish value.
+3. ARC and simplified software pilots failed to provide convincing evaluation.
+4. Mathematical search supplied a concrete construction and independent verifier.
+5. The frozen timing audit showed retrospective opportunity, not a usable policy.
+6. Progress-conditioned prediction reproduced a clock on untouched confirmation.
+7. Geometry features failed their improvement gate; a moderate fixed revision
+   configuration passed its predeclared test.
+8. The fixed-configuration advantage survived a doubled budget on fresh seeds.
+9. A sequential ridge/tree × myopic/continuation study produced adaptive action
+   sequences but neither primary improvement test passed on 48 fresh seeds.
+
+Current evidence supports better revision configurations across two budgets.
+Useful learned adaptive timing, cross-problem transfer and record improvement
+remain unestablished. Do not conflate these claims or retune on confirmation data.
+
+## Stop rule and next decision
+
+These protocols are complete. Do not retune on their confirmation seeds or
+promote a learned policy based on action diversity. A targeted next question is
+whether continuation-value predictions identify useful action differences on
+fresh cloned states, separating action opportunity, observation aliasing and
+training support. This needs its own frozen protocol. More model parameters are
+not justified solely by a failed improvement test.
+
+The manuscript [MANUSCRIPT.md](MANUSCRIPT.md) includes the full sequential study,
+negative/inconclusive results, cost accounting and an auditable evidence release.
+It remains a working draft: earlier-study artifact packaging, submission format,
+final reference editing and venue-specific checks remain before submission.
+
+## Earlier single-replacement task and implementation
+
+AlphaEvolve problem 36: 26 disjoint circles in the unit square, maximize sum of
+radii. Upstream commit: `8f447457957deac61e28bf1676746f0753b3b2f8`.
+Fresh-start SLSQP calls, eight windows, 80 objective evaluations per window,
+40 iterations per call. Each policy gets exactly 640 objective evaluations and
+one replacement. Never-revise is a separate baseline. Equal objective counts do
+not imply equal wall time, repair, constraint, or derivative work.
+
+Initial perturbation scale is 0.015. Broad replacement is 0.12; moderate is the
+predeclared geometric midpoint sqrt(0.015 * 0.12). Replacements persist. The
+independent floating-point checker verifies serialized geometry and accounting;
+a mathematical record would require an appropriately rigorous certificate.
+
+- `scripts/matched_revision.py`: frozen commitments and exhaustive timings.
+- `scripts/predict_revision.py`: progress/time models and causal policy replay.
+- `scripts/revision_hypotheses.py`: geometry and moderate-recipe hypotheses.
+- Corresponding `modal_*.py` files: bounded CPU collection and analysis.
+
+For the follow-up, preparation is local and performs no numerical experiment:
+
+```bash
+.venv/bin/python -m scripts.revision_hypotheses --output outputs/revision-hypotheses-v1
+```
+
+In the original local hidden_stars workspace that directory contains the completed run; it is not distributed in Astrax. Preparation refuses
+overwrite. The historical run command resumes an existing matching directory:
+
+```bash
+.venv/bin/modal run scripts/modal_revision_hypotheses.py --output outputs/revision-hypotheses-v1
+```
+
+Do not run it needlessly. Source changes invalidate the manifest. Pending calls
+and stale locks require inspection; never delete them to infer that paid work
+has not executed. All numerical studies used Modal CPU. L4 remains the user's
+preference for any separately justified GPU experiment; its billing restriction
+was not removed by the successful CPU runs.
+
+## Execution, costs and evidence
+
+| Run | Modal app | Local artifacts |
+|---|---|---|
+| Timing audit | `ap-t9i8xxYa5udMCVRbvFO57I` | `outputs/matched-revision-v1/` |
+| Prediction | `ap-Rytpt3uN9q2tNQhczLx9S1` | `outputs/revision-prediction-v2/` |
+| Follow-up | `ap-tRiwWPhOlw520FyvrXHGW6` | `outputs/revision-hypotheses-v1/` |
+| Sequential training | `ap-RydummZelRd26J73EfHubJ` | `outputs/sequential-controller-v1/` |
+| Sequential fitting/confirmation | `ap-hf25YyN9JrdQ6fPUnbDWMq` | `outputs/sequential-controller-v2/` |
+
+[Follow-up run](https://modal.com/apps/ayushichadha/main/ap-tRiwWPhOlw520FyvrXHGW6).
+The follow-up completed 84 collections and two analyses, validating 1,260 distinct
+schedule trajectories. Aggregate collection CPU time was 2,763.05 seconds.
+Displayed workspace usage was $0.10 before and $0.17 afterward, fully credit-offset
+with $0 billed. Rounded billing can lag or reconcile. No payment method was added.
+The authorized $10 allowance was not approached. These figures describe the completed geometry/revision-quality follow-up; the sequential study is accounted for separately above.
+
+Protocol commit `876717a` precedes follow-up collection. Models freeze before
+confirmation. Earlier raw artifacts remain ignored locally; manuscript hashes identify
+manifest, frozen models and summary but do not replace public artifact access.
+Prediction v1 was prepared but never launched; v2 fixed a numerical implementation
+issue before collection, without using experimental results.
+
+## Verification and reviewer obligations
+
+```bash
+.venv/bin/python -m pytest tests/ -q
+python -m scripts.audit_sequential_controller --output outputs/sequential-controller-v2
+```
+
+The original combined repository passed 134 tests, including ten sequential-controller contract/model tests. Astrax passes the 41-test numerical subset. Three
+macOS BLAS warnings arose inside the sklearn reference calculation; its outputs
+were finite and matched the exported ridge model to 1e-12. The production ridge
+fit uses an equivalent centered solve with einsum; the warnings are not suppressed.
+The seven earlier follow-up tests also passed with warnings as errors.
+Saved HRM audits are artifact inspections, not training replications. The decoded
+memorization predictions copy all 396 scored input tokens and miss all 13 changed
+tokens; this establishes behavior for those artifacts, not an architecture bug.
+
+The October review audit is a saved summary, not verbatim reviews
+(commit `5264e9e`, historical `analysis/PAPER2_REVISION_PLAN.md`). Current obligations:
+
+| Concern | Evidence/status |
+|---|---|
+| Test-selected baselines | New schedules/models selected on validation; confirmation frozen and separate |
+| Mean versus exact revisions | Earlier comparisons enforce one replacement; sequential study explicitly permits and counts multiple switches at a matched resource budget |
+| Local versus terminal credit | Sequential follow-up directly compares immediate reward against backward continuation values with identical observations/actions/data |
+| Strong controls | Earlier timing controls plus ridge/tree × myopic/sequential, validation-selected fixed schedule, and reactive rule |
+| Independent evidence | Fresh trajectory splits; seed-level intervals, two-hypothesis adjustment |
+| HRM zero solves / multiseed architectural claims | Unresolved; numerical search cannot close these concerns |
+| Dataset lineage / original micro-macro tables | Historical HRM closure remains pending; not used as new math evidence |
+| Literature and writing | Primary-source audit and revised math-centered draft; final formatting remains pending |
+
+## Supporting infrastructure
+
+The bounded parameter-autoresearch runner is `scripts/run_packing_autoresearch.py`.
+It is not arbitrary LLM code evolution or a trained revision policy. Do not launch
+its prepared L4 sweep as a substitute for a new hypothesis. Karpathy's original
+[autoresearch](https://github.com/karpathy/autoresearch) provides the fixed-evaluation,
+experiment-ledger pattern; implementing that pattern is not the empirical result.
+
+The optional Exa audit key is read from the environment or ignored `.env.research.local`.
+The local Exa skill installation and credentials were not copied during separation. The audit CLI is
+`scripts/exa_research_audit.py`; successful search/content requests cost $0.014 as
+reported by Exa. Earlier retrieval evidence remains in the original local hidden_stars workspace under `outputs/exa-audit/`. No credentials are
+stored in result files. A future LLM Exa tool must follow the skill's required
+query/objective and freshness instructions. Current integration is an audit CLI.
+
+## Completed supporting records
+
+Keep [explicit SQLite results](https://github.com/Ayushichadha/hidden_stars/blob/69de8ee/papers/trust4rsi/EXPLICIT_PROTOCOL.md),
+[latent-controller methods/results](https://github.com/Ayushichadha/hidden_stars/blob/69de8ee/papers/trust4rsi/CONTROLLER_DESIGN.md),
+[math pilot](https://github.com/Ayushichadha/hidden_stars/blob/69de8ee/papers/trust4rsi/MATH_SEARCH_PILOT.md), [paired math results](https://github.com/Ayushichadha/hidden_stars/blob/69de8ee/papers/trust4rsi/PAIRED_MATH_RESULTS.md),
+[Meta integration](https://github.com/Ayushichadha/hidden_stars/blob/69de8ee/papers/trust4rsi/META_AGENT_PILOT.md), and
+[completed neural study](https://github.com/Ayushichadha/hidden_stars/blob/69de8ee/papers/trust4rsi/NEURAL_SUPERVISOR_PROTOCOL.md) as experiment records.
+Their earlier suggested next steps do not override the active plan above. Seed labels
+and dated headings are not independently verified execution dates. Prior-paper
+artifacts remain in [beyond-the-clock](https://github.com/Ayushichadha/hidden_stars/blob/69de8ee/papers/beyond-the-clock/README.md).
+
+The repository separation preserves prior history in hidden_stars. Astrax contains
+the current numerical research and its directly relevant code and evidence.

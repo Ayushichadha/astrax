@@ -1,0 +1,17 @@
+name: Numerical tests and evidence audit
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python -m pytest tests/ -q
+      - run: tar -xzf papers/trust4rsi/artifacts/sequential-controller-evidence.tar.gz
+      - run: python -m scripts.audit_sequential_controller --output outputs/sequential-controller-v2

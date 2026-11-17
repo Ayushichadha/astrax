@@ -1,0 +1,8 @@
+numpy==2.2.6
+scipy==1.15.3
+scikit-learn==1.8.0
+modal==1.6.4
+matplotlib==3.10.5
+pytest==8.4.1
+python-dotenv>=1.0,<2
+certifi>=2025.1.31
