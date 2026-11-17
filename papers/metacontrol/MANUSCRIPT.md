@@ -612,3 +612,59 @@ snapshot. Audit requests and responses are retained locally under outputs/exa-au
 16. Eimer, T., Biedenkapp, A., Reimer, M., Adriaensen, S., Hutter, F., and
     Lindauer, M. (2021). DACBench: A Benchmark Library for Dynamic Algorithm
     Configuration. IJCAI 2021. https://arxiv.org/abs/2105.08541
+
+
+## Prospective two-family benchmark extension
+
+The next study fixes three tasks: packing 26 and 32 circles in the unit square
+(AlphaEvolve problem 36), and the first autoconvolution inequality (problem 2),
+restricted to 64 nonnegative coefficients. This is two mathematical families,
+not three independent domains, and is not a record attempt or zero-shot transfer.
+Reference notebook bytes are pinned at upstream commit
+`8f447457957deac61e28bf1676746f0753b3b2f8`; extracted constructions and source SHA256
+values are in `artifacts/benchmark-reference-audit.json`.
+The archived 600-bin problem-2 construction scores 1.5052939684401607 under both
+numpy and independently implemented integer/rational convolution. The published
+32-circle float array has boundary/squared-distance margins -1.39e-17/-7.09e-18;
+explicit radius contraction by 1e-9 gives an exactly feasible score
+2.9395727682667503. Neither construction seeds the controller experiment.
+
+Each task gets separate models, 96 training paths, 16 validation seeds and 48
+untouched paired confirmation seeds, with new disjoint seed ranges. All tasks'
+models and validation-selected comparators freeze before any confirmation.
+Four learned arms retain ridge/tree × myopic/sequential, fixed hyperparameters,
+three actions and eight windows of 80 objective calls. Static candidates are
+always-local, always-moderate, always-restart and local-to-moderate at window 4;
+a two-stagnant-window reactive policy is also evaluated. Packing reuses the
+frozen SLSQP worker. Autoconvolution uses 20 LP directions per window, each with
+four fixed mixtures; local/moderate perturbation or restart initializes a window.
+All LP failures, objective counts and execution time are retained. Objective-call
+matching is within a task; it does not match wall time or LP/constraint work.
+Final incumbents at every window pass exact rational feasibility/scoring.
+
+Primary contrasts are tree-sequential minus (H1) selected static, (H2) ridge-
+sequential and (H3) tree-myopic. Utility is packing score/sqrt(n/pi), or -C/2 for
+autoconvolution. Equal-task mean differences have 20,000 paired bootstrap resamples
+within tasks and 98.333% intervals (three-comparison Bonferroni adjustment).
+A success requires mean >=0.0002 and lower endpoint >0. Taskwise 95% intervals
+are descriptive. The aggregate weights packing twice because it contains two
+tasks; it does not estimate performance over all mathematical problems.
+
+The dispatch ledger permits at most 490 calls, each 1 CPU/2GiB/600 seconds,
+zero retries, four concurrent containers. At the checked Modal rate this caps
+function execution at $5.15676; $2 prior-usage allowance and $1 overhead reserve
+keep the planned total below $10. Startup/build/idle charges are separate from
+measured function time. No automatic retry or unbounded autoresearch is allowed.
+
+The conditional autoresearch pilot is development-only: consider it only if all
+three primary gates fail and at least one task has mean immediate oracle-minus-
+best-constant action opportunity below 0.0002 normalized per window in training.
+This is a screening heuristic, not proof of why control fails. Otherwise prioritize
+controller evidence/support diagnostics. Any pilot must freeze its own candidate
+budget and fresh development/validation seeds; suite confirmation is never reused.
+
+Commands: `python -m scripts.benchmark_suite --prepare outputs/benchmark-suite-v1`,
+then explicitly authorized `modal run -m scripts.modal_benchmark_suite --output
+outputs/benchmark-suite-v1`. Offline verification uses
+`python -m scripts.audit_benchmark_suite --output outputs/benchmark-suite-v1`.
+
