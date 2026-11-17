@@ -832,3 +832,26 @@ snapshot. Audit requests and responses are retained locally under outputs/exa-au
 16. Eimer, T., Biedenkapp, A., Reimer, M., Adriaensen, S., Hutter, F., and
     Lindauer, M. (2021). DACBench: A Benchmark Library for Dynamic Algorithm
     Configuration. IJCAI 2021. https://arxiv.org/abs/2105.08541
+
+### Prospective fresh-state diagnostic
+
+We test whether state features improve the choice of one polishing action over a
+time-only predictor. On each task, independently seeded fixed-policy prefixes
+reach windows 4, 6 or 7 (zero-based, balanced). We clone each state, try all
+three actions with matched random streams, then finish all branches with the
+same validation-selected fixed action from the preceding study. The target is
+the exact terminal score in the previous normalized utility units, centered
+across the three branches. Each branch has a logical budget of 640 worker calls.
+This tests one decision on fixed-policy states under a specified continuation.
+
+Each task/window fits a time-only mean action advantage and a state ridge
+regression with the same training targets and intercept, alpha 10. Training
+drops features with standard deviation at most 1e-10 times max(1,absolute mean)
+before standardization. We allocate 48 fresh training seeds and 24 independent
+confirmation seeds per task, one checkpoint per seed. Models freeze before
+confirmation. One primary endpoint averages realized state-selected minus
+time-selected terminal utility equally across tasks and windows. Success
+requires mean >=0.0002 and a positive lower 95% percentile bootstrap endpoint
+(20,000 seed resamples within task/window). Estimates condition on one fit.
+216 CPU jobs at one core, 2 GiB, 300 seconds, no retries, have a maximum
+function execution estimate of $1.14 before overhead.
