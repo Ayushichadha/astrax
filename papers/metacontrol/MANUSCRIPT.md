@@ -23,7 +23,7 @@ None of the three predeclared primary improvement gates passed.
 Tree-sequential minus selected fixed search has equal-task normalized gain -0.000043 (98.333% interval [-0.000510, +0.000415]).
 Tree-sequential minus ridge sequential has equal-task normalized gain +0.000030 (98.333% interval [-0.000509, +0.000562]).
 Tree-sequential minus tree myopic has equal-task normalized gain -0.000087 (98.333% interval [-0.000430, +0.000262]).
-We release source-pinned traces, fitted models, exact construction checks and
+A subsequent fresh-state test of conditioned ridge against time-only action selection yielded −0.000113 normalized utility (95% interval [−0.000251, +0.000016]). We release source-pinned traces, fitted models, exact construction checks and
 an offline audit. The 26-circle ridge baseline exhibits near-zero-feature scaling
 fragility, qualifying the capacity comparison. Findings concern two problem families, fixed action portfolios,
 cold starts and one fit per method; they do not establish zero-shot transfer,
@@ -561,6 +561,61 @@ ranking of action differences on fresh cloned states, with separate development
 and confirmation data, before expanding the strategy portfolio.
 
 
+### Fresh-state terminal action prediction
+
+We test whether state features improve the choice of one polishing action over a
+time-only predictor. On each task, independently seeded fixed-policy prefixes
+reach windows 4, 6 or 7 (zero-based, balanced). We clone each state, try all
+three actions with matched random streams, then finish all branches with the
+same validation-selected fixed action from the preceding study. The target is
+the exact terminal score in the previous normalized utility units, centered
+across the three branches. Each branch has a logical budget of 640 worker calls.
+This tests one decision on fixed-policy states under a specified continuation.
+
+Each task/window fits a time-only mean action advantage and a state ridge
+regression with the same training targets and intercept, alpha 10. Training
+drops features with standard deviation at most 1e-10 times max(1,absolute mean)
+before standardization. We allocate 48 fresh training seeds and 24 independent
+confirmation seeds per task, one checkpoint per seed. Models freeze before
+confirmation. One primary endpoint averages realized state-selected minus
+time-selected terminal utility equally across tasks and windows. Success
+requires mean >=0.0002 and a positive lower 95% percentile bootstrap endpoint
+(20,000 seed resamples within task/window). Estimates condition on one fit.
+216 CPU jobs at one core, 2 GiB, 300 seconds, no retries, have a maximum
+function execution estimate of $1.14 before overhead.
+
+
+On 72 fresh confirmation states the state-conditioned predictor changed 25
+decisions relative to the time-only predictor. Its equal-task mean gain was
+−0.000112814 normalized terminal utility (95% stratified paired bootstrap
+interval [−0.000251036, +0.000015817]). The upper endpoint falls below the
+prespecified useful gain of +0.0002. The fitted state predictor failed the
+primary improvement criterion. The interval includes zero.
+
+| Task | Different choices out of 24 | State minus time-only utility |
+|---|---:|---:|
+| 26-circle packing | 14 | −0.000274424 |
+| 32-circle packing | 4 | −0.000091554 |
+| First autoconvolution, 64 coefficients | 7 | +0.000027536 |
+
+This result narrows the explanation for the preceding suite. Correcting the
+known conditioning issue and supplying direct terminal labels still gave no
+measurable benefit from the observed features with this linear predictor.
+Each task/window regression has only 16 training states. The intervals
+condition on those fits, one realization per action, fixed-policy prefixes
+and continuations, and late checkpoints. Richer observations, larger training
+sets and different continuations remain open possibilities.
+
+The conditioning rule also removed the problematic initial radius-CV column
+when applied to the 96 historical training states. Protocol commit `ee3be85`
+preceded collection. The offline audit rechecks all 648 terminal constructions,
+fresh seed assignments, refitted predictions and the paired summary. Intermediate
+trajectories were not archived in this diagnostic. Recorded function bodies used
+1,311.38 seconds (about $0.0230 for CPU and memory, excluding overhead). The Modal
+client emitted an iterator shutdown warning after each complete split. Both split
+counts passed audit. [Modal run](https://modal.com/apps/ayushichadha/main/ap-jj0DPEPWl2O53TJyqtpOET)
+and [saved evidence](artifacts/fresh-action-evidence.tar.gz).
+
 ## 6. Interpretation, limits, and next decision
 
 The positive earlier evidence is an improvement in a fixed revision configuration,
@@ -596,8 +651,7 @@ task, so the conditional program-editing pilot is not triggered. These retrospec
 immediate differences do not establish predictability from the observations or
 long-horizon opportunity. Observation aliasing, training support and approximate
 value maximization remain possible limitations, not established explanations.
-A fresh-state action-ranking audit is a better supported next diagnostic than
-assuming more parameters or an LLM proposer will resolve the observed limitations.
+The fresh-state diagnostic above subsequently found no improvement over time-only action selection on the late checkpoints.
 No completed confirmation seed may be reused for selection or tuning.
 
 ## 7. Relation to prior work and the HRM project
@@ -832,26 +886,3 @@ snapshot. Audit requests and responses are retained locally under outputs/exa-au
 16. Eimer, T., Biedenkapp, A., Reimer, M., Adriaensen, S., Hutter, F., and
     Lindauer, M. (2021). DACBench: A Benchmark Library for Dynamic Algorithm
     Configuration. IJCAI 2021. https://arxiv.org/abs/2105.08541
-
-### Prospective fresh-state diagnostic
-
-We test whether state features improve the choice of one polishing action over a
-time-only predictor. On each task, independently seeded fixed-policy prefixes
-reach windows 4, 6 or 7 (zero-based, balanced). We clone each state, try all
-three actions with matched random streams, then finish all branches with the
-same validation-selected fixed action from the preceding study. The target is
-the exact terminal score in the previous normalized utility units, centered
-across the three branches. Each branch has a logical budget of 640 worker calls.
-This tests one decision on fixed-policy states under a specified continuation.
-
-Each task/window fits a time-only mean action advantage and a state ridge
-regression with the same training targets and intercept, alpha 10. Training
-drops features with standard deviation at most 1e-10 times max(1,absolute mean)
-before standardization. We allocate 48 fresh training seeds and 24 independent
-confirmation seeds per task, one checkpoint per seed. Models freeze before
-confirmation. One primary endpoint averages realized state-selected minus
-time-selected terminal utility equally across tasks and windows. Success
-requires mean >=0.0002 and a positive lower 95% percentile bootstrap endpoint
-(20,000 seed resamples within task/window). Estimates condition on one fit.
-216 CPU jobs at one core, 2 GiB, 300 seconds, no retries, have a maximum
-function execution estimate of $1.14 before overhead.

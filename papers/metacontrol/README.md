@@ -3,6 +3,39 @@
 Updated November 18, 2026. This is the single active research brief. Completed
 protocols remain evidence records, not competing experiment plans.
 
+## Fresh-state diagnostic completed
+
+On 72 fresh confirmation states the state-conditioned predictor changed 25
+decisions relative to the time-only predictor. Its equal-task mean gain was
+−0.000112814 normalized terminal utility (95% stratified paired bootstrap
+interval [−0.000251036, +0.000015817]). The upper endpoint falls below the
+prespecified useful gain of +0.0002. The fitted state predictor failed the
+primary improvement criterion. The interval includes zero.
+
+| Task | Different choices out of 24 | State minus time-only utility |
+|---|---:|---:|
+| 26-circle packing | 14 | −0.000274424 |
+| 32-circle packing | 4 | −0.000091554 |
+| First autoconvolution, 64 coefficients | 7 | +0.000027536 |
+
+This result narrows the explanation for the preceding suite. Correcting the
+known conditioning issue and supplying direct terminal labels still gave no
+measurable benefit from the observed features with this linear predictor.
+Each task/window regression has only 16 training states. The intervals
+condition on those fits, one realization per action, fixed-policy prefixes
+and continuations, and late checkpoints. Richer observations, larger training
+sets and different continuations remain open possibilities.
+
+The conditioning rule also removed the problematic initial radius-CV column
+when applied to the 96 historical training states. Protocol commit `ee3be85`
+preceded collection. The offline audit rechecks all 648 terminal constructions,
+fresh seed assignments, refitted predictions and the paired summary. Intermediate
+trajectories were not archived in this diagnostic. Recorded function bodies used
+1,311.38 seconds (about $0.0230 for CPU and memory, excluding overhead). The Modal
+client emitted an iterator shutdown warning after each complete split. Both split
+counts passed audit. [Modal run](https://modal.com/apps/ayushichadha/main/ap-jj0DPEPWl2O53TJyqtpOET)
+and [saved evidence](artifacts/fresh-action-evidence.tar.gz).
+
 ## Three-task suite: completed confirmation
 
 All 288 training paths, 48 validation seeds and 144 confirmation seeds completed.
@@ -453,12 +486,7 @@ remain unestablished. Do not conflate these claims or retune on confirmation dat
 ## Stop rule and next decision
 
 The suite and earlier protocols are complete. Do not retune on their confirmation
-seeds or promote a policy based on action diversity. The next prerequisite is a
-new, numerically stable feature/scaling implementation, tested on exact invariants
-and cross-platform perturbations. After that, a fresh cloned-state study can test
-whether action-value predictions rank useful alternatives, separating hindsight
-opportunity from predictable policy value. Any new comparison needs fresh
-confirmation data. The conditional autoresearch pilot was not triggered; code
+seeds or promote a policy based on action diversity. The conditioned ridge and fresh-state diagnostic above complete that follow-up. The tested observations changed decisions without improving mean terminal utility. The conditional autoresearch pilot was not triggered; code
 generation remains a possible later experiment, not an established remedy.
 
 The [manuscript](MANUSCRIPT.md) reports the completed suite, numerical limitations

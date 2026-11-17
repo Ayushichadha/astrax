@@ -12,6 +12,8 @@ Read the [research brief and ridge guide](papers/metacontrol/README.md),
 
 ## Current evidence
 
+The fresh-state test compared conditioned ridge with time-only action selection on 72 fresh polishing states. Mean normalized gain was −0.000113 (95% interval [−0.000251, +0.000016]). See the [manuscript](papers/metacontrol/MANUSCRIPT.md#fresh-state-terminal-action-prediction).
+
 None of the three predeclared primary improvement gates passed.
 
 | Primary contrast | Equal-task normalized gain | Adjusted 98.333% interval | Gate |
@@ -33,7 +35,7 @@ zero-shot transfer is claimed. The conditional autoresearch pilot was not trigge
 
 ## Install and test
 
-The standalone numerical suite passes 57 tests; the offline artifact audit also passes.
+The standalone numerical suite passes 58 tests; the offline artifact audit also passes.
 Python 3.11 is the reference environment. No GPU is needed for these tests or audits.
 
 ```bash

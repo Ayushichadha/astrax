@@ -17,3 +17,5 @@ jobs:
       - run: python -m scripts.audit_sequential_controller --output outputs/sequential-controller-v2
       - run: tar -xzf papers/metacontrol/artifacts/benchmark-suite-evidence.tar.gz
       - run: python -m scripts.audit_benchmark_suite --output outputs/benchmark-suite-v1
+      - run: tar -xzf papers/metacontrol/artifacts/fresh-action-evidence.tar.gz
+      - run: python -m scripts.audit_fresh_action outputs/fresh-action-v1
