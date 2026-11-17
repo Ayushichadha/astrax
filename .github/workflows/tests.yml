@@ -15,3 +15,5 @@ jobs:
       - run: python -m pytest tests/ -q
       - run: tar -xzf papers/metacontrol/artifacts/sequential-controller-evidence.tar.gz
       - run: python -m scripts.audit_sequential_controller --output outputs/sequential-controller-v2
+      - run: tar -xzf papers/metacontrol/artifacts/benchmark-suite-evidence.tar.gz
+      - run: python -m scripts.audit_benchmark_suite --output outputs/benchmark-suite-v1

@@ -1,11 +1,129 @@
 # Astrax: current evidence and next decision
 
-Updated November 17, 2026. This is the single active research brief. Completed
+Updated November 18, 2026. This is the single active research brief. Completed
 protocols remain evidence records, not competing experiment plans.
 
-## Frozen benchmark suite: protocol before collection
+## Three-task suite: completed confirmation
 
-The next study fixes three tasks: packing 26 and 32 circles in the unit square
+All 288 training paths, 48 validation seeds and 144 confirmation seeds completed.
+There are 6,912 training transitions and 1,056 full evaluation rollouts, with
+1,228,800 budgeted worker objective evaluations. Every task has 48 paired fresh
+confirmation seeds. Models are fitted separately per task; this is not zero-shot
+transfer. All models and fixed comparators froze before any confirmation dispatch.
+
+None of the three predeclared primary improvement gates passed.
+
+| Primary contrast | Equal-task normalized gain | Adjusted 98.333% interval | Gate |
+|---|---:|---|---|
+| Tree sequential − selected fixed | -0.000042777 | [-0.000510150, +0.000415338] | Not passed |
+| Tree sequential − ridge sequential | +0.000030288 | [-0.000509384, +0.000562167] | Not passed |
+| Tree sequential − tree myopic | -0.000087398 | [-0.000429721, +0.000261888] | Not passed |
+
+The 26-circle ridge baseline is numerically fragile because a theoretically zero
+radius-CV feature was scaled by about 6.5e-17. H2 therefore compares the frozen
+implementations; it does not establish a clean capacity advantage over a
+well-conditioned linear baseline. H1 and H3 do not use ridge.
+
+
+Positive differences favor tree-sequential. The practical gate also requires mean
+normalized gain >=0.0002. Individual task intervals in the figure are descriptive
+95% intervals, not additional adjusted primary claims. Results condition on one
+training sample and fit per method. Failure to establish superiority is not
+an equivalence result.
+
+![Three-task confirmation contrasts](benchmark-suite-results.svg)
+
+| Policy | 26-circle sum ↑ | 32-circle sum ↑ | Problem-2 C ↓ |
+|---|---:|---:|---:|
+| ridge myopic | 2.625053000 | 2.925075980 | 1.523242569 |
+| ridge sequential | 2.625928395 | 2.924234335 | 1.523100898 |
+| tree myopic | 2.625479662 | 2.925745511 | 1.523029804 |
+| tree sequential | 2.626056285 | 2.924789992 | 1.523356287 |
+| selected | 2.626110014 | 2.925835555 | 1.523792187 |
+| reactive | 2.623103566 | 2.924777444 | 1.527022573 |
+
+On 32-circle packing, tree-sequential is lower than selected fixed search by
+0.001045563 mean radius-sum units. On problem 2, its mean C is lower (better) by
+0.000435900, with descriptive 95% interval for the reduction
+[-0.000114703, +0.000988210]; it wins 32 seeds, loses 10 and ties 6. This is a
+small, uncertain signal, not an established taskwise superiority result.
+
+Validation selected always-moderate for both packing tasks and always-restart for
+problem 2. Raw objectives have different units and are not averaged together.
+The aggregate averages normalized gains across the three fixed tasks, weighting
+packing twice; it does not estimate performance over all mathematical problems.
+All runs start from seeded random constructions, not a record incumbent.
+The 64-bin restriction is a computational benchmark, not reproduction of the
+archived 600-bin construction or evidence of a mathematical record improvement.
+
+### Conditional autoresearch decision
+
+The development-only program-editing pilot was **not run**. The frozen trigger
+required all primary gates to fail and at least one task's mean immediate
+oracle-minus-best-constant action opportunity to be below 0.0002 normalized units
+per window. Every task exceeds that opportunity threshold:
+
+| Task | Training immediate oracle − best constant action |
+|---|---:|
+| packing26 | 0.000968820 |
+| packing32 | 0.000902864 |
+| autoconvolution64 | 0.000505111 |
+
+This is a retrospective training diagnostic on random-behavior states, including time/state variation and
+realized search randomness. It is not a deployable oracle, a generalization test,
+or proof that the available features predict those differences. It does not show
+that Karpathy-style code generation would fail. It does mean the declared rule
+does not justify adding a program generator in this study. No additional LLM API
+or pilot compute was purchased. The immediate prerequisite is to fix numerical
+feature conditioning in a new version, without altering these frozen models.
+A targeted next study would then test prediction and
+ranking of action differences on fresh cloned states, with separate development
+and confirmation data, before expanding the strategy portfolio.
+
+### Suite evidence and resource accounting
+
+Protocol commit `9ba9b4d` preceded collection. An audit-only call-count correction
+was documented in `363cfa2` before confirmation: the planned unique job count is
+487, while 490 is the dispatch ceiling. Original frozen sources are included in
+the evidence archive. The corrected offline auditor permits only that identified
+audit-source amendment; worker, model, statistics, seed and hypothesis sources
+remain unchanged. A second observation-first audit amendment handles the
+recorded ridge portability issue without refitting or changing any action. It also
+checks the complete expected job set and all six freeze receipt entries. No numerical collection was repeated.
+
+The observed portability issue and numerical baseline qualification are retained
+in the manuscript and raw amendment receipt, not hidden by a larger tolerance.
+The audit passes all 6,912 training transitions and 1,056 evaluation rollouts,
+recomputes frozen-policy predictions, checks exact constructions and source/model
+hashes, and reproduces the complete summary. The original cloud function log has
+487 study calls plus one Linux audit call (488 total),
+and 9395.43 recorded function-seconds including that audit,
+approximately **$0.1648** at the published CPU/memory
+rate. Build/startup/idle/egress are excluded; this is not a refreshed invoice.
+The conservative function ceiling was $5.15676, with $2 prior-usage allowance and
+$1 overhead reserve within the authorized $10. Training LP failures: 0.
+
+[Initial collection](https://modal.com/apps/ayushichadha/main/ap-N33xf40wDu8UDz34xBt6JS),
+[Linux audit](https://modal.com/apps/ayushichadha/main/ap-7vRC0UP5vUDnY1RPPc37VV),
+and [continuation](https://modal.com/apps/ayushichadha/main/ap-yq49SlUT9mPiBQw6lwUT93).
+[Full suite evidence](artifacts/benchmark-suite-evidence.tar.gz), SHA-256:
+`c8007253f16607bc55aaebedca5ecad9a2cce2dabcea481a0356cc59f759439b`.
+
+```bash
+tar -xzf papers/metacontrol/artifacts/benchmark-suite-evidence.tar.gz
+python -m scripts.audit_benchmark_suite --output outputs/benchmark-suite-v1
+python -m scripts.plot_benchmark_suite --output outputs/benchmark-suite-v1
+```
+
+These commands make no cloud or API calls. Exact verification applies to stored
+binary floating-point constructions. Budgeted fast evaluations exclude independent
+verification and initialization; measured runtime includes that work. The new
+suite does not retroactively turn the earlier floating-point study into an exact
+certificate. Saved run durations cannot be reproduced by offline replay.
+
+## Frozen benchmark suite: completed protocol
+
+The completed extension fixes three tasks: packing 26 and 32 circles in the unit square
 (AlphaEvolve problem 36), and the first autoconvolution inequality (problem 2),
 restricted to 64 nonnegative coefficients. This is two mathematical families,
 not three independent domains, and is not a record attempt or zero-shot transfer.
@@ -67,8 +185,11 @@ Commands: `python -m scripts.benchmark_suite --prepare outputs/benchmark-suite-v
 then explicitly authorized `modal run -m scripts.modal_benchmark_suite --output
 outputs/benchmark-suite-v1`. Offline verification uses
 `python -m scripts.audit_benchmark_suite --output outputs/benchmark-suite-v1`.
+For a paid reproduction, use a Linux client for the original native audit; the
+saved-run continuation wrapper is `scripts/resume_benchmark_suite.py` and requires
+the recorded Linux verification. Do not rerun a completed study merely to inspect it.
 
-## Sequential controller: completed study
+## Earlier sequential controller: completed study
 
 The completed experiment tests repeated search-option decisions, rather
 than the previous exactly-one-replacement stopping policy. Its frozen protocol is
@@ -331,17 +452,18 @@ remain unestablished. Do not conflate these claims or retune on confirmation dat
 
 ## Stop rule and next decision
 
-These protocols are complete. Do not retune on their confirmation seeds or
-promote a learned policy based on action diversity. A targeted next question is
-whether continuation-value predictions identify useful action differences on
-fresh cloned states, separating action opportunity, observation aliasing and
-training support. This needs its own frozen protocol. More model parameters are
-not justified solely by a failed improvement test.
+The suite and earlier protocols are complete. Do not retune on their confirmation
+seeds or promote a policy based on action diversity. The next prerequisite is a
+new, numerically stable feature/scaling implementation, tested on exact invariants
+and cross-platform perturbations. After that, a fresh cloned-state study can test
+whether action-value predictions rank useful alternatives, separating hindsight
+opportunity from predictable policy value. Any new comparison needs fresh
+confirmation data. The conditional autoresearch pilot was not triggered; code
+generation remains a possible later experiment, not an established remedy.
 
-The manuscript [MANUSCRIPT.md](MANUSCRIPT.md) includes the full sequential study,
-negative/inconclusive results, cost accounting and an auditable evidence release.
-It remains a working draft: earlier-study artifact packaging, submission format,
-final reference editing and venue-specific checks remain before submission.
+The [manuscript](MANUSCRIPT.md) reports the completed suite, numerical limitations
+and full evidence release. It remains a working draft; earlier-study public
+artifact packaging, submission formatting and final reference editing are pending.
 
 ## Earlier single-replacement task and implementation
 

@@ -2,31 +2,32 @@
 
 Ayushi Chadha
 
-Working manuscript, November 17, 2026. Completed numerical studies and limitations
+Working manuscript, November 18, 2026. Completed numerical studies and limitations
 are reported below. Submission formatting, packaging of earlier studies, and final
 reference editing remain pending. The sequential study includes public raw evidence. No mathematical record improvement is claimed.
 
 ## Abstract
 
-Adaptive decisions need not improve terminal performance. We study this distinction
-in verified 26-circle packing under matched objective-evaluation budgets. Earlier
-single-replacement experiments show a moderate revision configuration improving
-over a broad alternative (+0.006012; adjusted 97.5% interval [0.003712, 0.008490]),
-with a fresh doubled-budget replication; richer geometry does not establish
-better timing. We then separate function-class capacity from sequential credit
-using ridge and ExtraTrees critics, each trained on immediate rewards or backward
-finite-horizon continuation values. All four controllers share observations,
-local/moderate/restart options, and 640 objective calls per live rollout. With
-96 training seeds, 16 validation seeds and 48 fresh paired confirmation seeds,
-tree-sequential minus ridge-sequential is +0.000076 (97.5% interval
-[-0.001681, 0.001832]); tree-sequential minus tree-myopic is -0.000630
-([-0.002553, 0.001322]). Neither predeclared improvement test passes, and no
-advantage over validation-selected always-moderate search is established.
-The learned policies produce diverse action sequences, demonstrating a gap
-between adaptive behavior and verified decision value. We release source-pinned
-traces, fitted models and an offline audit. Findings are conditional on one
-problem, one training set, compressed observations and a small action portfolio;
-non-superiority does not imply equivalence or a general failure of metacontrol.
+Adaptive decisions need not improve terminal performance. We study state-conditioned
+search-option selection in verified mathematical optimization. Earlier 26-circle
+packing experiments establish a moderate fixed revision improvement, replicated
+under a doubled budget, without establishing useful adaptive timing. We then
+compare ridge and ExtraTrees critics with immediate or finite-horizon continuation
+targets. A frozen extension evaluates 26-circle packing, 32-circle packing and a
+64-coefficient first-autoconvolution task. Each task has 96 training paths, 16
+validation seeds and 48 fresh paired confirmation seeds; each rollout uses eight
+windows of 80 worker objective evaluations. Fixed comparators are selected on
+validation only, and all policies freeze before confirmation. Three adjusted
+primary contrasts test deployment value, nonlinear capacity and sequential credit.
+None of the three predeclared primary improvement gates passed.
+Tree-sequential minus selected fixed search has equal-task normalized gain -0.000043 (98.333% interval [-0.000510, +0.000415]).
+Tree-sequential minus ridge sequential has equal-task normalized gain +0.000030 (98.333% interval [-0.000509, +0.000562]).
+Tree-sequential minus tree myopic has equal-task normalized gain -0.000087 (98.333% interval [-0.000430, +0.000262]).
+We release source-pinned traces, fitted models, exact construction checks and
+an offline audit. The 26-circle ridge baseline exhibits near-zero-feature scaling
+fragility, qualifying the capacity comparison. Findings concern two problem families, fixed action portfolios,
+cold starts and one fit per method; they do not establish zero-shot transfer,
+a mathematical record, or equivalence between policies.
 
 ## 1. Research question and scope
 
@@ -56,7 +57,7 @@ execution infrastructure, not the learned controller evaluated here.
 
 ## 2. Task, worker, and intervention contract
 
-We use AlphaEvolve problem 36: maximize the sum of radii of 26 non-overlapping
+The initial studies use AlphaEvolve problem 36: maximize the sum of radii of 26 non-overlapping
 circles contained in the unit square [8]. The source is pinned to commit
 `8f447457957deac61e28bf1676746f0753b3b2f8`. The archived reference score
 2.6359830849176076 is a reference construction, not an independently verified
@@ -392,35 +393,212 @@ The best observed confirmation construction scores 2.635983082281558
 2.6359830849176076. This selected maximum neither beats that reference nor
 establishes policy superiority, and it is not a verified current-world-record claim.
 
+### Frozen two-family benchmark extension
+
+The extension fixes three tasks: packing 26 and 32 circles in the unit square
+(AlphaEvolve problem 36), and the first autoconvolution inequality (problem 2),
+restricted to 64 nonnegative coefficients. This is two mathematical families,
+not three independent domains, and is not a record attempt or zero-shot transfer.
+Reference notebook bytes are pinned at upstream commit
+`8f447457957deac61e28bf1676746f0753b3b2f8`; extracted constructions and source SHA256
+values are in `artifacts/benchmark-reference-audit.json`.
+The archived 600-bin problem-2 construction scores 1.5052939684401607 under both
+numpy and independently implemented integer/rational convolution. The published
+32-circle float array has boundary/squared-distance margins -1.39e-17/-7.09e-18;
+explicit radius contraction by 1e-9 gives an exactly feasible score
+2.9395727682667503. Neither construction seeds the controller experiment.
+
+Each task gets separate models, 96 training paths, 16 validation seeds and 48
+untouched paired confirmation seeds, with new disjoint seed ranges. All tasks'
+models and validation-selected comparators freeze before any confirmation.
+Four learned arms retain ridge/tree × myopic/sequential, fixed hyperparameters,
+three actions and eight windows of 80 objective calls. Static candidates are
+always-local, always-moderate, always-restart and local-to-moderate at window 4;
+a two-stagnant-window reactive policy is also evaluated. Packing reuses the
+frozen SLSQP worker. Autoconvolution uses 20 LP directions per window, each with
+four fixed mixtures; local/moderate perturbation or restart initializes a window.
+All LP failures, objective counts and execution time are retained. Objective-call
+matching is within a task; it does not match wall time or LP/constraint work.
+Final incumbents at every window pass exact rational feasibility/scoring.
+The counted unit is the worker proposal/objective evaluation: independent
+verification, initialization and observation formation are additional work. For
+autoconvolution, exact checks of improving proposals are outside the 80 fast
+convolution evaluations and are included in measured worker time; their count is
+not separately logged. Thus this is a matched search-budget comparison, not an
+assertion of equal total score computations or equal CPU time.
+
+Primary contrasts are tree-sequential minus (H1) selected static, (H2) ridge-
+sequential and (H3) tree-myopic. Utility is packing score/sqrt(n/pi), or -C/2 for
+autoconvolution. Equal-task mean differences have 20,000 paired bootstrap resamples
+within tasks and 98.333% intervals (three-comparison Bonferroni adjustment).
+A success requires mean >=0.0002 and lower endpoint >0. Taskwise 95% intervals
+are descriptive. The aggregate weights packing twice because it contains two
+tasks; it does not estimate performance over all mathematical problems.
+
+The job list contains 487 planned unique calls. The dispatch ledger permits at
+most 490 calls, each 1 CPU/2GiB/600 seconds,
+zero retries, four concurrent containers. At the checked Modal rate this caps
+function execution at $5.15676; $2 prior-usage allowance and $1 overhead reserve
+keep the planned total below $10. Startup/build/idle charges are separate from
+measured function time. No automatic retry or unbounded autoresearch is allowed.
+An offline-auditor bookkeeping correction was identified during first-task
+training, before fitting or confirmation: its completeness assertion must expect
+487 calls, not the 490-call ceiling. Frozen sources are preserved in the evidence;
+this changes no treatment, seed, model, result or spending cap.
+
+The conditional autoresearch pilot is development-only: consider it only if all
+three primary gates fail and at least one task has mean immediate oracle-minus-
+best-constant action opportunity below 0.0002 normalized per window in training.
+This is a screening heuristic, not proof of why control fails. Otherwise prioritize
+controller evidence/support diagnostics. Any pilot must freeze its own candidate
+budget and fresh development/validation seeds; suite confirmation is never reused.
+
+Commands: `python -m scripts.benchmark_suite --prepare outputs/benchmark-suite-v1`,
+then explicitly authorized `modal run -m scripts.modal_benchmark_suite --output
+outputs/benchmark-suite-v1`. Offline verification uses
+`python -m scripts.audit_benchmark_suite --output outputs/benchmark-suite-v1`.
+For a paid reproduction, use a Linux client for the original native audit; the
+saved-run continuation wrapper is `scripts/resume_benchmark_suite.py` and requires
+the recorded Linux verification. Do not rerun a completed study merely to inspect it.
+
+
+
+### Recorded portability issue before remaining confirmation
+
+After all 48 anchor confirmation seeds were saved, local macOS replay disagreed
+with six initial ridge value vectors (five changed argmaxes, three seeds). A
+theoretically zero radius-CV feature had training scale 6.483582079640224e-17.
+Observation differences <=4.86e-16 produced value differences up to 3.75510
+milli-utility units. This is material numerical fragility, not a small prediction
+tolerance discrepancy. The exact logged observations reproduce all saved values.
+The original unchanged validator passed all 288 anchor rollouts in a separate
+Linux audit (`ap-7vRC0UP5vUDnY1RPPc37VV`, 16.99 seconds, no optimization).
+
+Continuation retains every frozen worker, model, split and result. The local audit
+first checks causal observations at the existing 1e-12 tolerance, then predicts
+from the exact logged observation and checks values at the same tolerance plus
+exact argmax. The new audit/continuation sources are separately hashed. The
+26-circle ridge baseline is qualified as numerically fragile; its capacity
+contrast cannot establish superiority over a well-conditioned linear baseline.
+No scaling floor is retrofitted and no confirmation trajectory is replaced.
+The one additional audit call keeps the total below the 490-call allowance.
+
+### Three-task suite: completed confirmation
+
+All 288 training paths, 48 validation seeds and 144 confirmation seeds completed.
+There are 6,912 training transitions and 1,056 full evaluation rollouts, with
+1,228,800 budgeted worker objective evaluations. Every task has 48 paired fresh
+confirmation seeds. Models are fitted separately per task; this is not zero-shot
+transfer. All models and fixed comparators froze before any confirmation dispatch.
+
+None of the three predeclared primary improvement gates passed.
+
+| Primary contrast | Equal-task normalized gain | Adjusted 98.333% interval | Gate |
+|---|---:|---|---|
+| Tree sequential − selected fixed | -0.000042777 | [-0.000510150, +0.000415338] | Not passed |
+| Tree sequential − ridge sequential | +0.000030288 | [-0.000509384, +0.000562167] | Not passed |
+| Tree sequential − tree myopic | -0.000087398 | [-0.000429721, +0.000261888] | Not passed |
+
+The 26-circle ridge baseline is numerically fragile because a theoretically zero
+radius-CV feature was scaled by about 6.5e-17. H2 therefore compares the frozen
+implementations; it does not establish a clean capacity advantage over a
+well-conditioned linear baseline. H1 and H3 do not use ridge.
+
+
+Positive differences favor tree-sequential. The practical gate also requires mean
+normalized gain >=0.0002. Individual task intervals in the figure are descriptive
+95% intervals, not additional adjusted primary claims. Results condition on one
+training sample and fit per method. Failure to establish superiority is not
+an equivalence result.
+
+![Three-task confirmation contrasts](benchmark-suite-results.svg)
+
+| Policy | 26-circle sum ↑ | 32-circle sum ↑ | Problem-2 C ↓ |
+|---|---:|---:|---:|
+| ridge myopic | 2.625053000 | 2.925075980 | 1.523242569 |
+| ridge sequential | 2.625928395 | 2.924234335 | 1.523100898 |
+| tree myopic | 2.625479662 | 2.925745511 | 1.523029804 |
+| tree sequential | 2.626056285 | 2.924789992 | 1.523356287 |
+| selected | 2.626110014 | 2.925835555 | 1.523792187 |
+| reactive | 2.623103566 | 2.924777444 | 1.527022573 |
+
+On 32-circle packing, tree-sequential is lower than selected fixed search by
+0.001045563 mean radius-sum units. On problem 2, its mean C is lower (better) by
+0.000435900, with descriptive 95% interval for the reduction
+[-0.000114703, +0.000988210]; it wins 32 seeds, loses 10 and ties 6. This is a
+small, uncertain signal, not an established taskwise superiority result.
+
+Validation selected always-moderate for both packing tasks and always-restart for
+problem 2. Raw objectives have different units and are not averaged together.
+The aggregate averages normalized gains across the three fixed tasks, weighting
+packing twice; it does not estimate performance over all mathematical problems.
+All runs start from seeded random constructions, not a record incumbent.
+The 64-bin restriction is a computational benchmark, not reproduction of the
+archived 600-bin construction or evidence of a mathematical record improvement.
+
+### Conditional autoresearch decision
+
+The development-only program-editing pilot was **not run**. The frozen trigger
+required all primary gates to fail and at least one task's mean immediate
+oracle-minus-best-constant action opportunity to be below 0.0002 normalized units
+per window. Every task exceeds that opportunity threshold:
+
+| Task | Training immediate oracle − best constant action |
+|---|---:|
+| packing26 | 0.000968820 |
+| packing32 | 0.000902864 |
+| autoconvolution64 | 0.000505111 |
+
+This is a retrospective training diagnostic on random-behavior states, including time/state variation and
+realized search randomness. It is not a deployable oracle, a generalization test,
+or proof that the available features predict those differences. It does not show
+that Karpathy-style code generation would fail. It does mean the declared rule
+does not justify adding a program generator in this study. No additional LLM API
+or pilot compute was purchased. The immediate prerequisite is to fix numerical
+feature conditioning in a new version, without altering these frozen models.
+A targeted next study would then test prediction and
+ranking of action differences on fresh cloned states, with separate development
+and confirmation data, before expanding the strategy portfolio.
+
+
 ## 6. Interpretation, limits, and next decision
 
-The positive evidence remains an improvement in an available revision configuration,
-replicated under two search budgets. The subsequent sequential experiment makes
-the control problem richer and tests a nonlinear function class, but establishes
-neither a capacity advantage nor a benefit from continuation-value targets.
-Behaviorally adaptive choices alone are insufficient evidence for an effective
-research controller. None of the sequential findings justifies automatic promotion
-of a learned policy over the selected fixed baseline.
+The positive earlier evidence is an improvement in a fixed revision configuration,
+replicated under two search budgets. The initial sequential experiment established
+neither a capacity advantage nor a continuation-target advantage. The subsequent
+three-task suite broadens evaluation to two mathematical families with fresh data.
+None of the three predeclared primary improvement gates passed.
 
-The sequential study uses one circle count, one optimizer, one 640-call regime,
-96 training paths and a single fit per method. The three actions may provide
-limited state-dependent opportunity. Compressed features can alias distinct
-constructions; random-behavior training paths may not cover learned-policy states;
-maximization over approximate continuation values can introduce estimation bias.
-These are plausible limitations, not established explanations of the results.
-Confidence intervals remain wide relative to the practical-gain threshold and
-condition on the fitted models. We have not measured repeat-training variability,
-proved the observations Markov, or established cross-problem transfer.
+The suite does not establish aggregate deployment value over validation-selected
+fixed search under its declared gate. Adaptive behavior alone is insufficient
+evidence to promote a learned policy.
 
-We stop this study at its declared comparisons. A targeted next study should
-first audit whether continuation-value estimates predict action differences on
-fresh cloned states, distinguishing insufficient action opportunity from value
-estimation and support errors. That would require a new protocol and fresh data;
-we do not run additional searches or tune on this confirmation set. A larger
-neural network or LLM controller is not justified merely by the present null result.
-Runtime policy-promotion gates, calibrated fallback and new benchmark adapters
-remain separate work. A floating-point feasibility check does not certify policy
-improvement or safe recursive self-improvement.
+A numerical qualification is material: the 26-circle ridge scaler amplifies
+machine-precision radius-CV variation. The original historical ridge artifacts
+also have a tiny initial scale (6.70093368144695e-17); their capacity comparisons
+share this conditioning caveat even though their saved audit passed. Fixing
+feature conditioning requires a new protocol and fresh confirmation; no frozen
+model is repaired retrospectively. Tree-versus-static and tree-sequential-versus-
+tree-myopic comparisons do not depend on ridge.
+
+The suite uses separate training for each task, compressed observations, a small
+fixed action portfolio and one fit per method. Bootstrap intervals condition on
+those fits and do not measure retraining variability. Two packing sizes do not
+constitute independent mathematical domains. Normalization fixes objective scales
+but does not equalize FLOPs or wall time, and the aggregate is specific to the
+three chosen tasks. Cold-start performance is distinct from improvement near a
+known record. The fixed comparator is selected from four specified policies, not
+all possible open-loop schedules, and there is no learned time-only ablation.
+A gain over that comparator would not alone isolate the value of state information. Exact feasibility checks certify constructions, not policy superiority.
+
+Training branch differences exceed the frozen weak-portfolio threshold on every
+task, so the conditional program-editing pilot is not triggered. These retrospective
+immediate differences do not establish predictability from the observations or
+long-horizon opportunity. Observation aliasing, training support and approximate
+value maximization remain possible limitations, not established explanations.
+A fresh-state action-ranking audit is a better supported next diagnostic than
+assuming more parameters or an LLM proposer will resolve the observed limitations.
+No completed confirmation seed may be reused for selection or tuning.
 
 ## 7. Relation to prior work and the HRM project
 
@@ -551,15 +729,56 @@ The first two commands inspect saved evidence without Modal. The last command
 regenerates Figure 1 and additionally requires Matplotlib. Timing metadata is
 observed on the original cloud run, not recreated by the offline audit.
 
+### Suite evidence and resource accounting
+
+Protocol commit `9ba9b4d` preceded collection. An audit-only call-count correction
+was documented in `363cfa2` before confirmation: the planned unique job count is
+487, while 490 is the dispatch ceiling. Original frozen sources are included in
+the evidence archive. The corrected offline auditor permits only that identified
+audit-source amendment; worker, model, statistics, seed and hypothesis sources
+remain unchanged. A second observation-first audit amendment handles the
+recorded ridge portability issue without refitting or changing any action. It also
+checks the complete expected job set and all six freeze receipt entries. No numerical collection was repeated.
+
+The observed portability issue and numerical baseline qualification are retained
+in the manuscript and raw amendment receipt, not hidden by a larger tolerance.
+The audit passes all 6,912 training transitions and 1,056 evaluation rollouts,
+recomputes frozen-policy predictions, checks exact constructions and source/model
+hashes, and reproduces the complete summary. The original cloud function log has
+487 study calls plus one Linux audit call (488 total),
+and 9395.43 recorded function-seconds including that audit,
+approximately **$0.1648** at the published CPU/memory
+rate. Build/startup/idle/egress are excluded; this is not a refreshed invoice.
+The conservative function ceiling was $5.15676, with $2 prior-usage allowance and
+$1 overhead reserve within the authorized $10. Training LP failures: 0.
+
+[Initial collection](https://modal.com/apps/ayushichadha/main/ap-N33xf40wDu8UDz34xBt6JS),
+[Linux audit](https://modal.com/apps/ayushichadha/main/ap-7vRC0UP5vUDnY1RPPc37VV),
+and [continuation](https://modal.com/apps/ayushichadha/main/ap-yq49SlUT9mPiBQw6lwUT93).
+[Full suite evidence](artifacts/benchmark-suite-evidence.tar.gz), SHA-256:
+`c8007253f16607bc55aaebedca5ecad9a2cce2dabcea481a0356cc59f759439b`.
+
+```bash
+tar -xzf papers/metacontrol/artifacts/benchmark-suite-evidence.tar.gz
+python -m scripts.audit_benchmark_suite --output outputs/benchmark-suite-v1
+python -m scripts.plot_benchmark_suite --output outputs/benchmark-suite-v1
+```
+
+These commands make no cloud or API calls. Exact verification applies to stored
+binary floating-point constructions. Budgeted fast evaluations exclude independent
+verification and initialization; measured runtime includes that work. The new
+suite does not retroactively turn the earlier floating-point study into an exact
+certificate. Saved run durations cannot be reproduced by offline replay.
+
 ## 9. Conclusion
 
 Moderate replacement improved a fixed search configuration and retained its
-advantage at a second budget. Geometry-conditioned timing and the later
-ridge/tree sequential comparison did not establish useful adaptive gains under
-their declared tests. The latter produced diverse actions without a demonstrated
-improvement in terminal value. A credible metacontrol evaluation must separate
-better available actions, richer prediction functions, sequential credit and
-actual policy benefit, with the final decision grounded in independent evidence.
+advantage at a second budget. The frozen three-task extension tests whether
+learned strategy selection supplies additional value under matched worker budgets.
+None of the three predeclared primary improvement gates passed.
+A credible metacontrol evaluation must distinguish better actions, more flexible
+prediction, sequential credit and actual policy benefit. Verification and behavior
+logs support that evaluation; they do not substitute for demonstrated improvement.
 
 ## References
 
@@ -589,6 +808,7 @@ snapshot. Audit requests and responses are retained locally under outputs/exa-au
    Mathematical exploration and discovery at scale.
    https://arxiv.org/abs/2511.02864
    Problem 36: https://google-deepmind.github.io/alphaevolve_repository_of_problems/problems/36.html
+   Problem 2 and reference LP construction: https://github.com/google-deepmind/alphaevolve_repository_of_problems/blob/8f447457957deac61e28bf1676746f0753b3b2f8/autocorrelation_problems.ipynb
 
 9. OpenEvolve issue 156, original author report (2025).
    https://github.com/algorithmicsuperintelligence/openevolve/issues/156
@@ -612,91 +832,3 @@ snapshot. Audit requests and responses are retained locally under outputs/exa-au
 16. Eimer, T., Biedenkapp, A., Reimer, M., Adriaensen, S., Hutter, F., and
     Lindauer, M. (2021). DACBench: A Benchmark Library for Dynamic Algorithm
     Configuration. IJCAI 2021. https://arxiv.org/abs/2105.08541
-
-
-## Prospective two-family benchmark extension
-
-The next study fixes three tasks: packing 26 and 32 circles in the unit square
-(AlphaEvolve problem 36), and the first autoconvolution inequality (problem 2),
-restricted to 64 nonnegative coefficients. This is two mathematical families,
-not three independent domains, and is not a record attempt or zero-shot transfer.
-Reference notebook bytes are pinned at upstream commit
-`8f447457957deac61e28bf1676746f0753b3b2f8`; extracted constructions and source SHA256
-values are in `artifacts/benchmark-reference-audit.json`.
-The archived 600-bin problem-2 construction scores 1.5052939684401607 under both
-numpy and independently implemented integer/rational convolution. The published
-32-circle float array has boundary/squared-distance margins -1.39e-17/-7.09e-18;
-explicit radius contraction by 1e-9 gives an exactly feasible score
-2.9395727682667503. Neither construction seeds the controller experiment.
-
-Each task gets separate models, 96 training paths, 16 validation seeds and 48
-untouched paired confirmation seeds, with new disjoint seed ranges. All tasks'
-models and validation-selected comparators freeze before any confirmation.
-Four learned arms retain ridge/tree × myopic/sequential, fixed hyperparameters,
-three actions and eight windows of 80 objective calls. Static candidates are
-always-local, always-moderate, always-restart and local-to-moderate at window 4;
-a two-stagnant-window reactive policy is also evaluated. Packing reuses the
-frozen SLSQP worker. Autoconvolution uses 20 LP directions per window, each with
-four fixed mixtures; local/moderate perturbation or restart initializes a window.
-All LP failures, objective counts and execution time are retained. Objective-call
-matching is within a task; it does not match wall time or LP/constraint work.
-Final incumbents at every window pass exact rational feasibility/scoring.
-The counted unit is the worker proposal/objective evaluation: independent
-verification, initialization and observation formation are additional work. For
-autoconvolution, exact checks of improving proposals are outside the 80 fast
-convolution evaluations and are included in measured worker time; their count is
-not separately logged. Thus this is a matched search-budget comparison, not an
-assertion of equal total score computations or equal CPU time.
-
-Primary contrasts are tree-sequential minus (H1) selected static, (H2) ridge-
-sequential and (H3) tree-myopic. Utility is packing score/sqrt(n/pi), or -C/2 for
-autoconvolution. Equal-task mean differences have 20,000 paired bootstrap resamples
-within tasks and 98.333% intervals (three-comparison Bonferroni adjustment).
-A success requires mean >=0.0002 and lower endpoint >0. Taskwise 95% intervals
-are descriptive. The aggregate weights packing twice because it contains two
-tasks; it does not estimate performance over all mathematical problems.
-
-The job list contains 487 planned unique calls. The dispatch ledger permits at
-most 490 calls, each 1 CPU/2GiB/600 seconds,
-zero retries, four concurrent containers. At the checked Modal rate this caps
-function execution at $5.15676; $2 prior-usage allowance and $1 overhead reserve
-keep the planned total below $10. Startup/build/idle charges are separate from
-measured function time. No automatic retry or unbounded autoresearch is allowed.
-An offline-auditor bookkeeping correction was identified during first-task
-training, before fitting or confirmation: its completeness assertion must expect
-487 calls, not the 490-call ceiling. Frozen sources are preserved in the evidence;
-this changes no treatment, seed, model, result or spending cap.
-
-The conditional autoresearch pilot is development-only: consider it only if all
-three primary gates fail and at least one task has mean immediate oracle-minus-
-best-constant action opportunity below 0.0002 normalized per window in training.
-This is a screening heuristic, not proof of why control fails. Otherwise prioritize
-controller evidence/support diagnostics. Any pilot must freeze its own candidate
-budget and fresh development/validation seeds; suite confirmation is never reused.
-
-Commands: `python -m scripts.benchmark_suite --prepare outputs/benchmark-suite-v1`,
-then explicitly authorized `modal run -m scripts.modal_benchmark_suite --output
-outputs/benchmark-suite-v1`. Offline verification uses
-`python -m scripts.audit_benchmark_suite --output outputs/benchmark-suite-v1`.
-
-
-
-### Recorded portability issue before remaining confirmation
-
-After all 48 anchor confirmation seeds were saved, local macOS replay disagreed
-with six initial ridge value vectors (five changed argmaxes, three seeds). A
-theoretically zero radius-CV feature had training scale 6.483582079640224e-17.
-Observation differences <=4.86e-16 produced value differences up to 3.75510
-milli-utility units. This is material numerical fragility, not a small prediction
-tolerance discrepancy. The exact logged observations reproduce all saved values.
-The original unchanged validator passed all 288 anchor rollouts in a separate
-Linux audit (`ap-7vRC0UP5vUDnY1RPPc37VV`, 16.99 seconds, no optimization).
-
-Continuation retains every frozen worker, model, split and result. The local audit
-first checks causal observations at the existing 1e-12 tolerance, then predicts
-from the exact logged observation and checks values at the same tolerance plus
-exact argmax. The new audit/continuation sources are separately hashed. The
-26-circle ridge baseline is qualified as numerically fragile; its capacity
-contrast cannot establish superiority over a well-conditioned linear baseline.
-No scaling floor is retrofitted and no confirmation trajectory is replaced.
-The one additional audit call keeps the total below the 490-call allowance.

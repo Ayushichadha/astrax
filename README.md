@@ -2,32 +2,38 @@
 
 Hypothesis-driven metacontrol for verified mathematical search. Astrax studies
 whether observations of a running search help a controller choose useful actions
-under a fixed resource budget. The present benchmark is AlphaEvolve problem 36:
-packing 26 unequal circles in a unit square. The worker is SciPy SLSQP; it is not HRM.
+under a fixed resource budget. The completed suite includes 26- and 32-circle packing (AlphaEvolve problem 36)
+and a 64-coefficient first-autoconvolution task (problem 2). Workers use SciPy
+SLSQP and linear programming; they are not HRM.
 
 Read the [research brief and ridge guide](papers/metacontrol/README.md),
 [working manuscript](papers/metacontrol/MANUSCRIPT.md), and
-[confirmation figure](papers/metacontrol/sequential-controller-results.svg).
+[suite confirmation figure](papers/metacontrol/benchmark-suite-results.svg).
 
 ## Current evidence
 
-The completed sequential study uses 96 training, 16 validation and 48 fresh paired
-confirmation seeds. Ridge and ExtraTrees critics share observations, local/moderate/
-restart options, and 640 objective evaluations; each has myopic and sequential
-credit variants. Neither primary comparison established improvement:
+None of the three predeclared primary improvement gates passed.
 
-| Primary contrast | Mean score difference | Paired 97.5% interval |
-|---|---:|---|
-| Tree sequential − ridge sequential | +0.000075914 | [-0.001680902, +0.001831500] |
-| Tree sequential − tree myopic | -0.000629639 | [-0.002553465, +0.001322107] |
+| Primary contrast | Equal-task normalized gain | Adjusted 98.333% interval | Gate |
+|---|---:|---|---|
+| Tree sequential − selected fixed | -0.000042777 | [-0.000510150, +0.000415338] | Not passed |
+| Tree sequential − ridge sequential | +0.000030288 | [-0.000509384, +0.000562167] | Not passed |
+| Tree sequential − tree myopic | -0.000087398 | [-0.000429721, +0.000261888] | Not passed |
 
-The intervals do not rule out useful positive effects. Adaptive behavior is present,
-but useful policy value and mathematical record improvement remain unestablished.
-Earlier fixed moderate-revision gains remain separate findings.
+The 26-circle ridge baseline is numerically fragile because a theoretically zero
+radius-CV feature was scaled by about 6.5e-17. H2 therefore compares the frozen
+implementations; it does not establish a clean capacity advantage over a
+well-conditioned linear baseline. H1 and H3 do not use ridge.
+
+
+Each task uses 96 training, 16 validation and 48 fresh paired confirmation seeds.
+The comparison uses task-specific models and normalized gains; individual task
+results and limitations are in the research brief. No mathematical record or
+zero-shot transfer is claimed. The conditional autoresearch pilot was not triggered.
 
 ## Install and test
 
-The standalone numerical suite passes 41 tests; the offline artifact audit also passes.
+The standalone numerical suite passes 57 tests; the offline artifact audit also passes.
 Python 3.11 is the reference environment. No GPU is needed for these tests or audits.
 
 ```bash
@@ -39,7 +45,21 @@ python -m pytest tests/ -q
 
 ## Reproduce the saved evidence without cloud spending
 
-The single archive contains original and amended records, fitted models, full
+The three-task suite archive includes 487 call receipts, all constructions,
+models and original frozen sources. Extract and audit without cloud spending:
+
+```bash
+tar -xzf papers/metacontrol/artifacts/benchmark-suite-evidence.tar.gz
+python -m scripts.audit_benchmark_suite --output outputs/benchmark-suite-v1
+python -m scripts.plot_benchmark_suite --output outputs/benchmark-suite-v1
+```
+
+Recorded suite function execution is approximately $0.1648, excluding
+startup/build/idle/egress. This is a rate-based estimate, not an invoice.
+
+The earlier single-task study remains separately reproducible:
+
+Its archive contains original and amended records, fitted models, full
 traces, and audit receipts. From a fresh checkout:
 
 ```bash
@@ -67,6 +87,9 @@ No confirmation seed may be reused to tune a new model.
 
 ## Code map
 
+- `scripts/benchmark_suite.py`: frozen tasks, exact checks, training and comparison rules.
+- `scripts/modal_benchmark_suite.py`: bounded three-task CPU dispatcher.
+- `scripts/audit_benchmark_suite.py`: offline suite verification and recorded audit-only amendment.
 - `scripts/sequential_controller.py`: bounded options, causal observations and fitted Q models.
 - `scripts/modal_sequential_controller.py`: frozen splits, CPU execution, checkpoint receipts.
 - `scripts/audit_sequential_controller.py`: offline evidence replay.
