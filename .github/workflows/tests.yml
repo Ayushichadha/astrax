@@ -13,5 +13,5 @@ jobs:
           cache: pip
       - run: pip install -r requirements.txt
       - run: python -m pytest tests/ -q
-      - run: tar -xzf papers/trust4rsi/artifacts/sequential-controller-evidence.tar.gz
+      - run: tar -xzf papers/metacontrol/artifacts/sequential-controller-evidence.tar.gz
       - run: python -m scripts.audit_sequential_controller --output outputs/sequential-controller-v2

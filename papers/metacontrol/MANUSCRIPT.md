@@ -542,7 +542,7 @@ raw artifacts remain separately pending public release. Current sequential hashe
 From a fresh checkout with NumPy/SciPy/scikit-learn available, extract and audit:
 
 ```bash
-tar -xzf papers/trust4rsi/artifacts/sequential-controller-evidence.tar.gz
+tar -xzf papers/metacontrol/artifacts/sequential-controller-evidence.tar.gz
 python -m scripts.audit_sequential_controller --output outputs/sequential-controller-v2
 python -m scripts.plot_sequential_controller
 ```

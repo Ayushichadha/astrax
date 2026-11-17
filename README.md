@@ -5,9 +5,9 @@ whether observations of a running search help a controller choose useful actions
 under a fixed resource budget. The present benchmark is AlphaEvolve problem 36:
 packing 26 unequal circles in a unit square. The worker is SciPy SLSQP; it is not HRM.
 
-Read the [research brief and ridge guide](papers/trust4rsi/README.md),
-[working manuscript](papers/trust4rsi/MANUSCRIPT.md), and
-[confirmation figure](papers/trust4rsi/sequential-controller-results.svg).
+Read the [research brief and ridge guide](papers/metacontrol/README.md),
+[working manuscript](papers/metacontrol/MANUSCRIPT.md), and
+[confirmation figure](papers/metacontrol/sequential-controller-results.svg).
 
 ## Current evidence
 
@@ -43,7 +43,7 @@ The single archive contains original and amended records, fitted models, full
 traces, and audit receipts. From a fresh checkout:
 
 ```bash
-tar -xzf papers/trust4rsi/artifacts/sequential-controller-evidence.tar.gz
+tar -xzf papers/metacontrol/artifacts/sequential-controller-evidence.tar.gz
 python -m scripts.audit_sequential_controller --output outputs/sequential-controller-v2
 python -m scripts.plot_sequential_controller
 ```

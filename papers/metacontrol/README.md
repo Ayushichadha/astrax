@@ -90,7 +90,7 @@ The [single evidence archive](artifacts/sequential-controller-evidence.tar.gz)
 contains original and amended records, models and receipts. From a fresh checkout:
 
 ```bash
-tar -xzf papers/trust4rsi/artifacts/sequential-controller-evidence.tar.gz
+tar -xzf papers/metacontrol/artifacts/sequential-controller-evidence.tar.gz
 python -m scripts.audit_sequential_controller --output outputs/sequential-controller-v2
 python -m scripts.plot_sequential_controller
 ```
@@ -386,11 +386,9 @@ query/objective and freshness instructions. Current integration is an audit CLI.
 
 ## Completed supporting records
 
-Keep [explicit SQLite results](https://github.com/Ayushichadha/hidden_stars/blob/69de8ee/papers/trust4rsi/EXPLICIT_PROTOCOL.md),
-[latent-controller methods/results](https://github.com/Ayushichadha/hidden_stars/blob/69de8ee/papers/trust4rsi/CONTROLLER_DESIGN.md),
-[math pilot](https://github.com/Ayushichadha/hidden_stars/blob/69de8ee/papers/trust4rsi/MATH_SEARCH_PILOT.md), [paired math results](https://github.com/Ayushichadha/hidden_stars/blob/69de8ee/papers/trust4rsi/PAIRED_MATH_RESULTS.md),
-[Meta integration](https://github.com/Ayushichadha/hidden_stars/blob/69de8ee/papers/trust4rsi/META_AGENT_PILOT.md), and
-[completed neural study](https://github.com/Ayushichadha/hidden_stars/blob/69de8ee/papers/trust4rsi/NEURAL_SUPERVISOR_PROTOCOL.md) as experiment records.
+Historical SQLite, latent-controller, mathematical-pilot, paired-search, Meta
+integration and neural-study records remain in the
+[original research snapshot](https://github.com/Ayushichadha/hidden_stars/tree/69de8ee).
 Their earlier suggested next steps do not override the active plan above. Seed labels
 and dated headings are not independently verified execution dates. Prior-paper
 artifacts remain in [beyond-the-clock](https://github.com/Ayushichadha/hidden_stars/blob/69de8ee/papers/beyond-the-clock/README.md).

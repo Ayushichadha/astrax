@@ -69,7 +69,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("papers/trust4rsi/sequential-controller-results.svg"),
+        default=Path("papers/metacontrol/sequential-controller-results.svg"),
     )
     parser.add_argument("--preview", type=Path)
     args = parser.parse_args()

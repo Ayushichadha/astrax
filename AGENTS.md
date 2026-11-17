@@ -4,7 +4,7 @@ This repository studies sequential metacontrol of verified mathematical search.
 It is independent of hidden_stars/HRM; no HRM checkout or submodule is required.
 
 - Use Python 3.11 and `requirements.txt`; run `python -m pytest tests/ -q`.
-- The single active research brief is `papers/trust4rsi/README.md`; update it and
+- The single active research brief is `papers/metacontrol/README.md`; update it and
   the manuscript rather than adding competing experiment plans.
 - Preserve frozen source bytes and seed partitions for completed studies.
   New hypotheses need fresh confirmation data and a new versioned protocol.
