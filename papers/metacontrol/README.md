@@ -30,6 +30,12 @@ four fixed mixtures; local/moderate perturbation or restart initializes a window
 All LP failures, objective counts and execution time are retained. Objective-call
 matching is within a task; it does not match wall time or LP/constraint work.
 Final incumbents at every window pass exact rational feasibility/scoring.
+The counted unit is the worker proposal/objective evaluation: independent
+verification, initialization and observation formation are additional work. For
+autoconvolution, exact checks of improving proposals are outside the 80 fast
+convolution evaluations and are included in measured worker time; their count is
+not separately logged. Thus this is a matched search-budget comparison, not an
+assertion of equal total score computations or equal CPU time.
 
 Primary contrasts are tree-sequential minus (H1) selected static, (H2) ridge-
 sequential and (H3) tree-myopic. Utility is packing score/sqrt(n/pi), or -C/2 for

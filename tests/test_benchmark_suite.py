@@ -90,3 +90,39 @@ def test_archived_reference_constructions_with_exact_checks():
         s.packing_exact(z.ravel())
     z[:, 2] *= 1 - 1e-9
     assert s.packing_exact(z.ravel()) == pytest.approx(2.9395727682667503, abs=1e-14)
+
+
+def test_failed_dispatch_cannot_silently_retry(tmp_path):
+    import json
+    from scripts.modal_benchmark_suite import execute
+
+    (tmp_path / "manifest.json").write_text(json.dumps(s.specification()))
+    calls = []
+
+    def failed_backend(jobs):
+        calls.extend(jobs)
+        raise RuntimeError("Injected transport failure")
+
+    with pytest.raises(RuntimeError, match="Injected"):
+        execute(tmp_path, failed_backend)
+    assert len(calls) == 4
+    assert len(list(tmp_path.glob("*.pending"))) == 4
+    assert not (tmp_path / "dispatch.lock").exists()
+    with pytest.raises(RuntimeError, match="unresolved"):
+        execute(tmp_path, failed_backend)
+    assert len(calls) == 4
+
+
+def test_auto_fast_evaluations_are_separate_from_exact_verification(monkeypatch):
+    state = s.initialize("autoconvolution64", 991)
+    original = s.autocheck
+    calls = []
+
+    def counted(values, exact=False):
+        calls.append(exact)
+        return original(values, exact)
+
+    monkeypatch.setattr(s, "autocheck", counted)
+    s.step("autoconvolution64", state, "moderate")
+    assert calls.count(False) == 80
+    assert 0 < calls.count(True) <= 20
