@@ -126,3 +126,66 @@ def test_auto_fast_evaluations_are_separate_from_exact_verification(monkeypatch)
     s.step("autoconvolution64", state, "moderate")
     assert calls.count(False) == 80
     assert 0 < calls.count(True) <= 20
+
+
+def test_observation_first_audit_preserves_frozen_predictions():
+    from scripts.suite_portability import validate_rollout
+
+    task = "autoconvolution64"
+    seed = 515
+    name = "ridge_myopic"
+    state = s.initialize(task, seed)
+    initial = s.observations(task, state, [])
+    heads = []
+    for i in range(3):
+        coef = [0.0] * 16
+        coef[9] = 1.0 if i == 0 else 0.0
+        scale = [1.0] * 16
+        scale[9] = 1e-17
+        heads.append(
+            dict(kind="ridge", mean=initial, scale=scale, coef=coef, intercept=float(i))
+        )
+    bundle = dict(models={name: [heads] * 8})
+    trace = []
+    decisions = []
+    for window in range(8):
+        x = s.observations(task, state, trace)
+        x[9] = float(np.nextafter(x[9], np.inf))
+        q = [float(s.old.predict(m, x)[0]) for m in heads]
+        action = s.ACTIONS[int(np.argmax(q))]
+        assert action == "local"
+        event = dict(
+            window=window,
+            action=action,
+            score_before=state.score,
+            score_after=state.score,
+            evaluations=state.evaluations + 80,
+            calls=[dict(function_evaluations=80, lp_calls=20, lp_failures=0)],
+            construction=state.incumbent.tolist(),
+        )
+        state = s.transition(task, state, action, event, event["construction"])
+        trace.append(event)
+        decisions.append(dict(observation=x, q_milliutility=q))
+    row = dict(
+        task=task,
+        seed=seed,
+        policy=name,
+        trace=trace,
+        decisions=decisions,
+        score=state.score,
+        utility=state.score / 2,
+        objective=-state.score,
+        evaluations=640,
+        switches=state.revisions,
+    )
+    with pytest.raises(ValueError, match="Policy/observation"):
+        s.validate_rollout(task, row, seed, name, bundle)
+    validate_rollout(task, row, seed, name, bundle)
+    bad = copy.deepcopy(row)
+    bad["decisions"][0]["q_milliutility"][0] += 1
+    with pytest.raises(ValueError, match="Frozen model"):
+        validate_rollout(task, bad, seed, name, bundle)
+    bad = copy.deepcopy(row)
+    bad["decisions"][0]["observation"][9] += 1e-8
+    with pytest.raises(ValueError, match="Noncausal"):
+        validate_rollout(task, bad, seed, name, bundle)

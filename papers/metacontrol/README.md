@@ -460,3 +460,24 @@ artifacts remain in [beyond-the-clock](https://github.com/Ayushichadha/hidden_st
 
 The repository separation preserves prior history in hidden_stars. Astrax contains
 the current numerical research and its directly relevant code and evidence.
+
+
+### Recorded portability issue before remaining confirmation
+
+After all 48 anchor confirmation seeds were saved, local macOS replay disagreed
+with six initial ridge value vectors (five changed argmaxes, three seeds). A
+theoretically zero radius-CV feature had training scale 6.483582079640224e-17.
+Observation differences <=4.86e-16 produced value differences up to 3.75510
+milli-utility units. This is material numerical fragility, not a small prediction
+tolerance discrepancy. The exact logged observations reproduce all saved values.
+The original unchanged validator passed all 288 anchor rollouts in a separate
+Linux audit (`ap-7vRC0UP5vUDnY1RPPc37VV`, 16.99 seconds, no optimization).
+
+Continuation retains every frozen worker, model, split and result. The local audit
+first checks causal observations at the existing 1e-12 tolerance, then predicts
+from the exact logged observation and checks values at the same tolerance plus
+exact argmax. The new audit/continuation sources are separately hashed. The
+26-circle ridge baseline is qualified as numerically fragile; its capacity
+contrast cannot establish superiority over a well-conditioned linear baseline.
+No scaling floor is retrofitted and no confirmation trajectory is replaced.
+The one additional audit call keeps the total below the 490-call allowance.
