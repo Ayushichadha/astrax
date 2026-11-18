@@ -654,3 +654,31 @@ progress versus each of resume, reset and time-only. Normalized utility is
 Bonferroni-adjusted two-sided intervals). Adaptive improvement requires all
 three progress contrasts to pass. Total 144 jobs, 1 CPU, 2 GiB, 180 seconds,
 no retries, at most $0.455 in function execution plus overhead.
+
+### Worker-memory results
+
+The frozen protocol is commit `7f95535`. The development split selected resume
+after two windows and reset after four or six. On confirmation, the progress rule
+resumed 69 of 96 times. Always-resume beat always-reset on 7 seeds, tied on 22
+and lost on 67 (absolute normalized difference <=1e-12 defines a descriptive tie).
+
+| Paired gain in normalized terminal utility | Mean | Adjusted 98.75% interval |
+|---|---:|---:|
+| Resume minus reset | −0.0001265 | [−0.0003321, +0.0000911] |
+| Progress minus resume | +0.0000579 | [+0.0000204, +0.0001135] |
+| Progress minus reset | −0.0000685 | [−0.0002727, +0.0001496] |
+| Progress minus time-only | −0.0000934 | [−0.0002172, +0.0000247] |
+
+All four upper endpoints fall below the prespecified useful mean gain of
+0.0002. The progress rule improved on always resuming by a small amount.
+Neither the worker advantage nor the adaptive-selection criterion passed.
+The scope is a single branching decision in a deterministic LP continuation
+from random-restart prefixes on the 64-bin task. Stored checkpoint history
+supports decision replay. LP internal state and intermediate suffix updates
+were not archived. The offline audit checks both terminal constructions per
+seed, all checkpoint decisions, the development rule and the paired summary.
+
+Recorded worker execution cost about $0.00346 at the CPU/memory rate, excluding
+startup and overhead. [Modal run](https://modal.com/apps/ayushichadha/main/ap-0omxxm2DNw1og4bdW8p7dm).
+Extract [the evidence archive](artifacts/worker-memory-evidence.tar.gz) and run
+`python -m scripts.audit_worker_memory outputs/worker-memory-v1` for offline replay.

@@ -121,3 +121,7 @@ No model, hypothesis, split or recorded result changed during separation.
 This is a working research release. Submission formatting, older-study public
 artifact packaging and venue checks remain outstanding; no autonomous code
 invention or general safe-improvement guarantee is claimed.
+
+The [separate problem 2 memory experiment](papers/metacontrol/README.md#worker-memory-results)
+compared continuing an unfinished candidate with resetting to the incumbent.
+None of its four comparisons met the prespecified useful-gain criterion.
