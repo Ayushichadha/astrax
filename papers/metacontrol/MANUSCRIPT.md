@@ -2,32 +2,29 @@
 
 Ayushi Chadha
 
-Working manuscript, November 18, 2026. Completed numerical studies and limitations
-are reported below. Submission formatting, packaging of earlier studies, and final
-reference editing remain pending. The sequential study includes public raw evidence. No mathematical record improvement is claimed.
+November 18, 2026
 
 ## Abstract
 
-Adaptive decisions need not improve terminal performance. We study state-conditioned
-search-option selection in verified mathematical optimization. Earlier 26-circle
-packing experiments establish a moderate fixed revision improvement, replicated
-under a doubled budget, without establishing useful adaptive timing. We then
-compare ridge and ExtraTrees critics with immediate or finite-horizon continuation
-targets. A frozen extension evaluates 26-circle packing, 32-circle packing and a
-64-coefficient first-autoconvolution task. Each task has 96 training paths, 16
-validation seeds and 48 fresh paired confirmation seeds; each rollout uses eight
-windows of 80 worker objective evaluations. Fixed comparators are selected on
-validation only, and all policies freeze before confirmation. Three adjusted
-primary contrasts test deployment value, nonlinear capacity and sequential credit.
-None of the three predeclared primary improvement gates passed.
-Tree-sequential minus selected fixed search has equal-task normalized gain -0.000043 (98.333% interval [-0.000510, +0.000415]).
-Tree-sequential minus ridge sequential has equal-task normalized gain +0.000030 (98.333% interval [-0.000509, +0.000562]).
-Tree-sequential minus tree myopic has equal-task normalized gain -0.000087 (98.333% interval [-0.000430, +0.000262]).
-A subsequent fresh-state test of conditioned ridge against time-only action selection yielded −0.000113 normalized utility (95% interval [−0.000251, +0.000016]). We release source-pinned traces, fitted models, exact construction checks and
-an offline audit. The 26-circle ridge baseline exhibits near-zero-feature scaling
-fragility, qualifying the capacity comparison. Findings concern two problem families, fixed action portfolios,
-cold starts and one fit per method; they do not establish zero-shot transfer,
-a mathematical record, or equivalence between policies.
+When does observing a search improve the decision to change strategy? In
+26-circle packing, a validation-selected moderate revision configuration
+improved the sum of radii by 0.006012 over a broad revision configuration.
+The improvement replicated under a doubled evaluation budget (+0.007796).
+These comparisons vary both revision timing and strength. We then evaluated
+state-conditioned strategy selection on two packing sizes and a 64-bin
+autoconvolution problem. On 48 paired confirmation seeds per task, a sequential
+tree controller achieved a mean normalized gain of −0.000043 over the selected
+fixed policies (adjusted 98.333% interval [−0.000510, +0.000415]). Neither
+increasing model capacity nor learning continuation values met its improvement
+criterion. Numerical instability qualifies the initial ridge comparison.
+In a subsequent diagnostic we stabilized the features and measured terminal
+outcomes for every available action from cloned states. On 72 fresh late-search
+states, adding observations to a time-only predictor changed 25 choices and
+yielded −0.000113 normalized utility (95% interval [−0.000251, +0.000016]).
+The upper endpoint lies below the prespecified useful gain of 0.0002. Across
+these workers and budgets, the reproducible improvement came from choosing
+a better fixed revision configuration. The tested controllers did not establish
+additional value from observing search progress.
 
 ## 1. Research question and scope
 
@@ -536,31 +533,6 @@ All runs start from seeded random constructions, not a record incumbent.
 The 64-bin restriction is a computational benchmark, not reproduction of the
 archived 600-bin construction or evidence of a mathematical record improvement.
 
-### Conditional autoresearch decision
-
-The development-only program-editing pilot was **not run**. The frozen trigger
-required all primary gates to fail and at least one task's mean immediate
-oracle-minus-best-constant action opportunity to be below 0.0002 normalized units
-per window. Every task exceeds that opportunity threshold:
-
-| Task | Training immediate oracle − best constant action |
-|---|---:|
-| packing26 | 0.000968820 |
-| packing32 | 0.000902864 |
-| autoconvolution64 | 0.000505111 |
-
-This is a retrospective training diagnostic on random-behavior states, including time/state variation and
-realized search randomness. It is not a deployable oracle, a generalization test,
-or proof that the available features predict those differences. It does not show
-that Karpathy-style code generation would fail. It does mean the declared rule
-does not justify adding a program generator in this study. No additional LLM API
-or pilot compute was purchased. The immediate prerequisite is to fix numerical
-feature conditioning in a new version, without altering these frozen models.
-A targeted next study would then test prediction and
-ranking of action differences on fresh cloned states, with separate development
-and confirmation data, before expanding the strategy portfolio.
-
-
 ### Fresh-state terminal action prediction
 
 We test whether state features improve the choice of one polishing action over a
@@ -826,13 +798,15 @@ certificate. Saved run durations cannot be reproduced by offline replay.
 
 ## 9. Conclusion
 
-Moderate replacement improved a fixed search configuration and retained its
-advantage at a second budget. The frozen three-task extension tests whether
-learned strategy selection supplies additional value under matched worker budgets.
-None of the three predeclared primary improvement gates passed.
-A credible metacontrol evaluation must distinguish better actions, more flexible
-prediction, sequential credit and actual policy benefit. Verification and behavior
-logs support that evaluation; they do not substitute for demonstrated improvement.
+The moderate revision configuration improved packing at both tested budgets.
+The subsequent three-task experiment gave no reliable advantage to learned
+selection over validation-selected fixed search. The fresh-state experiment
+sharpens this finding for late decisions under fixed continuations. With exact
+terminal labels and conditioned ridge, the upper confidence bound on the benefit
+of state information fell below the declared practical threshold. The conclusion
+applies to the tested observations, training sizes, workers and budgets. Whether
+a worker can exploit an unfinished trajectory across decisions is a separate
+empirical question.
 
 ## References
 
