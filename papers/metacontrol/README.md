@@ -631,3 +631,26 @@ exact argmax. The new audit/continuation sources are separately hashed. The
 contrast cannot establish superiority over a well-conditioned linear baseline.
 No scaling floor is retrofitted and no confirmation trajectory is replaced.
 The one additional audit call keeps the total below the 490-call allowance.
+
+## Separate worker-memory experiment on problem 2
+
+At one prespecified checkpoint after 2, 4 or 6 windows, reset starts from the
+incumbent and resume starts from the last working candidate. Both protect the
+same incumbent and then continuously polish their starting candidate for all
+remaining windows. The prefix uses independent seeded Dirichlet starts and
+the existing 64-bin LP update. Continuations are deterministic conditional on
+the checkpoint. Each branch receives eight logical windows of 80 evaluations.
+The unit of memory is the candidate vector. No LP solver basis is carried.
+The time-only rule chooses the better mean action per checkpoint on 48 fresh
+balanced development seeds, ties to reset. The progress rule resumes if the
+mean decrease in C over the last five LP updates is positive and extrapolating
+that rate over the remaining updates covers the gap to the incumbent.
+Otherwise it resets. Rules and threshold are fixed before collection.
+
+On 96 fresh balanced confirmation seeds we test resume versus reset and
+progress versus each of resume, reset and time-only. Normalized utility is
+−C/2. Each contrast requires a mean gain of at least 0.0002 and a positive
+98.75% paired bootstrap lower endpoint (20,000 stratified resamples, four
+Bonferroni-adjusted two-sided intervals). Adaptive improvement requires all
+three progress contrasts to pass. Total 144 jobs, 1 CPU, 2 GiB, 180 seconds,
+no retries, at most $0.455 in function execution plus overhead.
